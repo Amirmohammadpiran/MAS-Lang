@@ -10,7 +10,7 @@ class Lexer {
     const char *BufferPtr;
 
     public:
-        Lexer(const llvm::StringRef &Buffer) {    // scanning the whole context
+        Lexer(const llvm::StringRef &Buffer) {    // constructor scans the whole context
             BufferStart = Buffer.begin();
             BufferPtr = BufferStart;
         }
