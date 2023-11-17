@@ -5,23 +5,7 @@
 #include "llvm/Support/MemoryBuffer.h" // provides read-only access to a block of memory, filled
                                        // with the content of a file
 
-class Lexer {
-    const char *BufferStart;
-    const char *BufferPtr;
-
-    public:
-        Lexer(const llvm::StringRef &Buffer) {    // constructor scans the whole context
-            BufferStart = Buffer.begin();
-            BufferPtr = BufferStart;
-        }
-
-    void next(Token &token);                       // gets next token
-    
-    private:
-        void formToken(Token &Result, const char *TokEnd,
-        Token::TokenKind Kind);
-    };
-#endif
+class Lexer;
 
 class Token {
     friend class Lexer;
@@ -84,3 +68,21 @@ class Token {
                 return is(K1) || isOneOf(K2, Ks...);
             }
     };
+
+class Lexer{
+    const char *BufferStart;
+    const char *BufferPtr;
+
+    public:
+        Lexer(const llvm::StringRef &Buffer) {    // constructor scans the whole context
+            BufferStart = Buffer.begin();
+            BufferPtr = BufferStart;
+        }
+
+    void next(Token &token);                       // gets next token
+    
+    private:
+        void formToken(Token &Result, const char *TokEnd,
+        Token::TokenKind Kind);
+    };
+#endif
