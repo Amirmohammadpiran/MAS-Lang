@@ -1,0 +1,97 @@
+S -> Define S | Assign S | If S | Loop S | Define | Assign | If | Loop
+
+Define ->  "int" SPC Variables SPC ";" LineSPC |
+	   "int" SPC Variables ";" LineSPC |
+	   "int" SPC Variables SPC AssignOp SPC Values ";" LineSPC |
+	   "int" SPC Variables AssignOp SPC Values ";" LineSPC |
+	   "int" SPC Variables SPC AssignOp Values ";" LineSPC |
+	   "int" SPC Variables AssignOp Values ";" LineSPC
+
+
+SPC -> " " SPC | " "
+
+LineSPC -> "\n" LineSPC | " " LineSPC | " " | "\n"
+
+Variables -> Id SPC "," SPC Variables |
+	     Id SPC "," Variables |
+	     Id "," SPC Variables |
+	     Id "," Variables | Id
+
+AssignOp -> "+=" | "-=" | "*=" | "/=" | "="
+
+Values -> Expr SPC "," SPC Values |
+	  Expr "," SPC Values |
+	  Expr SPC "," Values |
+	  Expr "," Values | Expr
+
+Expr -> Expr SPC "+" SPC Term |
+        Expr "+" SPC Term |
+        Expr SPC "+" Term |
+        Expr "+" Term |
+        Expr SPC "-" SPC Term |
+        Expr "-" SPC Term |
+        Expr SPC "-" Term |
+        Expr "-" Term | Term
+
+Term -> Term SPC "*" SPC Power |
+        Term "*" SPC Power |
+        Term SPC "*" Power |
+        Term "*" Power |
+        Term SPC "/" SPC Power |
+        Term "/" SPC Power |
+        Term SPC "/" Power |
+        Term "/" Power | Power
+
+Power -> Power SPC "^" SPC Factor |
+	 Power SPC "^" Factor |
+	 Power "^" SPC Factor |
+	 Power "^" Factor | Factor
+
+Factor -> Id | Number | "(" SPC Expr SPC ")" |
+		        "(" Expr SPC ")" |
+		        "(" SPC Expr ")" |
+		        "(" Expr ")"
+
+Assign ->  Variables SPC AssignOp SPC Values ";" LineSPC |
+	   Variables AssignOp SPC Values ";" LineSPC |
+	   Variables SPC AssignOp Values ";" LineSPC |
+	   Variables AssignOp Values ";" LineSPC
+
+If -> "if" SPC Condition SPC ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC Elif Else |
+      "if" SPC Condition SPC ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC Else |
+      "if" SPC Condition SPC ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC Elif |
+      "if" SPC Condition SPC ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC |
+      "if" SPC Condition SPC ":" LineSPC "begin" LineSPC "end" LineSPC Elif Else |
+      "if" SPC Condition SPC ":" LineSPC "begin" LineSPC "end" LineSPC Else |
+      "if" SPC Condition SPC ":" LineSPC "begin" LineSPC "end" LineSPC Elif |
+      "if" SPC Condition SPC ":" LineSPC "begin" LineSPC "end" LineSPC
+
+Elif -> "elif" SPC Condition SPC ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC Elif |
+	"elif" SPC Condition SPC ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC |
+	"elif" SPC Condition SPC ":" LineSPC "begin" LineSPC "end" LineSPC Elif | 
+	"elif" SPC Condition SPC ":" LineSPC "begin" LineSPC "end" LineSPC
+
+Else -> "else" SPC ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC |
+	"else:" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC |
+	"else" SPC ":" LineSPC "begin" LineSPC "end" LineSPC |
+	"else:" LineSPC "begin" LineSPC "end" LineSPC
+
+Statement -> Assign Statement | If Statement | Loop Statement | Assign | If | Loop
+
+Condition -> Condition SPC "and" SPC SubCondition | 
+	     Condition SPC "or" SPC SubCondition |  SubCondition
+
+SubCondition -> "True" | "False" | Expr | Expr SPC Relational SPC Expr |
+					  Expr Relational SPC Expr |
+					  Expr SPC Relational Expr |
+					  Expr Relational Expr |
+					  "(" SPC Condition SPC ")" | 
+					  "(" Condition SPC ")" | 
+					  "(" SPC Condition ")" | 
+					  "(" Condition ")" | 
+
+Relational -> ">" | "<" | ">=" | "<=" | "==" | "!="
+
+Loop -> "loopc " SPC Condition SPC ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC |
+	"loopc " SPC Condition ":" LineSPC "begin" LineSPC Statement LineSPC "end" LineSPC 
+	
