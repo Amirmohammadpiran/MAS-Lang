@@ -24,6 +24,7 @@ class Token {
             power,          // ^
             l_paren,        // (
             r_paren,        // )
+            semi_colon,     // ;
             plus_equal,     // +=
             minus_equal,    // -=
             star_equal,     // *=
