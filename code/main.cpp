@@ -3,6 +3,7 @@
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/raw_ostream.h"
 #include <iostream>
+#include "AST.h"
 
 using namespace std;
 
