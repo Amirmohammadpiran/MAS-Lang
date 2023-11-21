@@ -43,57 +43,42 @@ void Lexer::next(Token &token) {
             ++end;                          // until reaches the end of lexeme
                                             // example: ".int " -> "i.nt " -> "in.t " -> "int. "
 
+   
         llvm::StringRef Context(BufferPtr, end - BufferPtr);  // start of lexeme, length of lexeme
 
         Token::TokenKind kind;
 
-        switch(context) {       // checks if lexeme is a keyword or identifier
-
-            case "int":
-                kind = Token::KW_int;
-                break;
-            
-            case "if":
-                kind = Token::KW_if;
-                break;
-
-            case "elif":
-                kind = Token::KW_elif;
-                break;
-            
-            case "else":
-                kind = Token::KW_else;
-                break;
-            
-            case "else:":
-                kind = Token::KW_else_colon;
-                break;
-            
-            case "loopc":
-                kind = Token::KW_loopc;
-                break;
-            
-            case "and":
-                kind = Token::KW_and;
-                break;
-            
-            case "or":
-                kind = Token::KW_or;
-                break;
-            
-            case "true":
-                kind = Token::KW_true;
-                break;
-            
-            case "false":
-                kind = Token::KW_false;
-                break;
-
-            default:
-                kind = Token::ident;
-                break;
-
+        if (Context == "int") {
+            kind = Token::KW_int;
+        } 
+        else if (Context == "if") {
+            kind = Token::KW_if;
+        } 
+        else if (Context == "elif") {
+            kind = Token::KW_elif;
         }
+        else if (Context == "else") {
+            kind = Token::KW_else;
+        }
+        else if (Context == "loopc") {
+            kind = Token::KW_loopc;
+        }
+        else if (Context == "and") {
+            kind = Token::KW_and;
+        }
+        else if (Context == "or") {
+            kind = Token::KW_or;
+        }
+        else if (Context == "true") {
+            kind = Token::KW_true;
+        }
+        else if (Context == "false") {
+            kind = Token::KW_false;
+        }
+        else {
+            kind = Token::ident;
+        }
+        
 
         formToken(token, end, kind);
         return;
@@ -112,44 +97,33 @@ void Lexer::next(Token &token) {
 
     else {
 
-        if(*BufferPtr == '=') && *(BufferPtr + 1) == '=' {      // ==
+        if(*BufferPtr == '=' && *(BufferPtr + 1) == '=') {      // ==
             formToken(token, BufferPtr + 2, Token::equal_equal);
-            break;
-        }
-
-        if(*BufferPtr == '+' && *(BufferPtr + 1) == '=') {      // +=
+        } else if(*BufferPtr == '+' && *(BufferPtr + 1) == '=') {      // +=
             formToken(token, BufferPtr + 2, Token::plus_equal);
-            break;
-        }
-
-        if(*BufferPtr == '-' && *(BufferPtr + 1) == '=') {      // -=
+   
+        } else if(*BufferPtr == '-' && *(BufferPtr + 1) == '=') {      // -=
             formToken(token, BufferPtr + 2, Token::minus_equal);
-            break;
         }
-
-        if(*BufferPtr == '*' && *(BufferPtr + 1) == '=') {      // *=
+        
+        else if(*BufferPtr == '*' && *(BufferPtr + 1) == '=') {      // *=
             formToken(token, BufferPtr + 2, Token::star_equal);
-            break;
         }
 
-        if(*BufferPtr == '/' && *(BufferPtr + 1) == '=') {      // /=
+        else if(*BufferPtr == '/' && *(BufferPtr + 1) == '=') {      // /=
             formToken(token, BufferPtr + 2, Token::slash_equal);
-            break;
         }
 
-        if(*BufferPtr == '!' && *(BufferPtr + 1) == '=') {      // !=
+        else if(*BufferPtr == '!' && *(BufferPtr + 1) == '=') {      // !=
             formToken(token, BufferPtr + 2, Token::not_equal);
-            break;
         }
 
-        if(*BufferPtr == '<' && *(BufferPtr + 1) == '=') {      // <=
+        else if(*BufferPtr == '<' && *(BufferPtr + 1) == '=') {      // <=
             formToken(token, BufferPtr + 2, Token::less_equal);
-            break;
         }
 
-        if(*BufferPtr == '>' && *(BufferPtr + 1) == '=') {      // >=
+        else if(*BufferPtr == '>' && *(BufferPtr + 1) == '=') {      // >=
             formToken(token, BufferPtr + 2, Token::greater_equal);
-            break;
         }
 
         if(charinfo::isOperator(*BufferPtr + 1)) {   // in case of invalid operator like "*->"
