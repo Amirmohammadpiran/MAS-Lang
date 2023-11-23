@@ -43,18 +43,19 @@ class Parser {
 	// pattern specified. each one produces its own node
 	// one node can have multiple subnodes inside it
 
+public:
 	Base* parseS();
 	AssignStatement* parseDefine();
-	ValExpression* parseLineSPC();
-	Expr* parseExpr();
-	ValExpression* parseTerm();
-	ValExpression* parsePower();
-	Expr* parseFactor();
+    Expression* parseLineSPC();
+    Expression* parseExpr();
+    Expression* parseTerm();
+    Expression* parsePower();
+    Expression* parseFactor();
 	AssignStatement* parseAssign();
-	CondExpression* parseCondition();
-	Expr* parseSubCondition();
+    Expression* parseCondition();
+    Expression* parseSubCondition();
 	LoopStatement* parseLoop();
-    VarExpression* parseVar();
+    Expression* parseVar();
 
 public:
     // initializes all members and retrieves the first token
@@ -66,7 +67,7 @@ public:
     // get the value of error flag
     bool hasError() { return HasError; }
 
-    AST* parse();
+    Base* parse();
 };
 
 #endif

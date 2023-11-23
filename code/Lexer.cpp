@@ -125,43 +125,38 @@ void Lexer::next(Token &token) {
         else if(*BufferPtr == '>' && *(BufferPtr + 1) == '=') {      // >=
             formToken(token, BufferPtr + 2, Token::greater_equal);
         }
-
-        if(charinfo::isOperator(*BufferPtr + 1)) {   // in case of invalid operator like "*->"
-
-            const char *end = BufferPtr + 1;
-
-            while (charinfo::isOperator(*end))
-                ++end;
-
-            formToken(token, end, Token::unknown);
-            return;
+        else if (*BufferPtr == '=') {
+            formToken(token, BufferPtr + 1, Token::equal);
         }
+        else {
+            switch (*BufferPtr) {
 
-        switch (*BufferPtr) {
-
-            #define CASE(ch, tok) \
+#define CASE(ch, tok) \
             case ch: formToken(token, BufferPtr + 1, tok); break
 
-            CASE('+', Token::plus);
-            CASE('-', Token::minus);
-            CASE('*', Token::star);
-            CASE('/', Token::slash);
-            CASE('(', Token::l_paren);
-            CASE(')', Token::r_paren);
-            CASE(':', Token::colon);
-            CASE(',', Token::comma);
-            CASE('^', Token::power);
-            CASE('>', Token::greater);
-            CASE('<', Token::less);
-            CASE(';', Token::eoi);
+                CASE('+', Token::plus);
+                CASE('-', Token::minus);
+                CASE('*', Token::star);
+                CASE('/', Token::slash);
+                CASE('(', Token::l_paren);
+                CASE(')', Token::r_paren);
+                CASE(':', Token::colon);
+                CASE(',', Token::comma);
+                CASE('^', Token::power);
+                CASE('>', Token::greater);
+                CASE('<', Token::less);
+                CASE(';', Token::eoi);
 
-            #undef CASE
+#undef CASE
 
             default:
                 formToken(token, BufferPtr + 1, Token::unknown);
             }
-        return;
+            return;
         }
+        }
+
+        
     }
 
 void Lexer::formToken(Token &Tok, const char *TokEnd, Token::TokenKind Kind) {

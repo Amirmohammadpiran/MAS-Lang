@@ -13,15 +13,32 @@ Base* Parser::parseS()
     {
         switch (Tok.getKind())
         {
-        case Token::KW_int:
+        case Token::ident:
+        {
             Statement* state = parseAssign();
             if (state)
             {
                 statements.push_back(state);
             }
+            break;
+        }
+        case Token::KW_int:
+        {
+            Statement* state = parseDefine();
+            if (state)
+            {
+                statements.push_back(state);
+            }
+            break;
+        }
+
         default:
+        {
             goto _error2;
             break;
+        }
+
+
         }
         advance(); 
     }
@@ -35,59 +52,92 @@ _error2:
 
 AssignStatement* Parser::parseDefine()
 {
-
+    return NULL;
 }
-ValExpression* Parser::parseLineSPC()
+Expression* Parser::parseLineSPC()
 {
-
+    return NULL;
 }
 
 
-Expr* Parser::parseExpr()
+Expression* Parser::parseExpr()
 {
-    Expr* Left = parseTerm();
+    Expression* Left = parseTerm();
     while (Tok.isOneOf(Token::plus, Token::minus))
     {
         BinaryOp::Operator Op =
             Tok.is(Token::plus) ? BinaryOp::Plus : BinaryOp::Minus;
         advance();
-        Expr* Right = parseTerm();
+        Expression* Right = parseTerm();
         Left = new BinaryOp(Op, Left, Right);
     }
     return Left;
 }
 
 
-ValExpression* Parser::parseTerm()
+Expression* Parser::parseTerm()
 {
-    Expr* Left = parseFactor();
-    ValExpression* top;
+    Expression* Left = parseFactor();
     while (Tok.isOneOf(Token::star, Token::slash))
     {
         BinaryOp::Operator Op =
             Tok.is(Token::star) ? BinaryOp::Mul : BinaryOp::Div;
         advance();
-        Expr* Right = parseFactor();
-        top = new BinaryOp(Op, Left, Right);
+        Expression* Right = parseFactor();
+        Left = new BinaryOp(Op, Left, Right);
     }
-    return top;
+    return Left;
 }
 
-ValExpression* Parser::parsePower()
+Expression* Parser::parsePower()
 {
-
+    return NULL;
 }
 
-Expr* Parser::parseFactor()
+Expression* Parser::parseFactor()
 {
+    Expression* Res = nullptr;
+    switch (Tok.getKind())
+    {
+    case Token::number:
+    {
+        int number;
+        Tok.getText().getAsInteger(10, number);
+        Res = new Expression(number);
+        advance();
+        break;
+    }
+    case Token::ident:
+    {
+        Res = new Expression(Tok.getText());
+        advance();
+        break;
+    }
+    case Token::l_paren:
+    {
+        advance();
+        Res = parseExpr();
+        if (!consume(Token::r_paren))
+            break;
+    }
+    default: // error handling
+    {
+        if (!Res)
+            error();
+        while (!Tok.isOneOf(Token::r_paren, Token::star, Token::plus, Token::minus, Token::slash, Token::eoi))
+            advance();
+        break;
+    }
 
+    }
+    return Res;
 }
 
 
 AssignStatement* Parser::parseAssign()
 {
-    VarExpression* lhand;
-    Expr* rhand;
+    Expression* lhand;
+    Expression* rhand;
 
     lhand = parseVar();
 
@@ -103,7 +153,7 @@ AssignStatement* Parser::parseAssign()
 }
 
 
-VarExpression* Parser::parseVar()
+Expression* Parser::parseVar()
 {
     if (!Tok.is(Token::ident))
     {
@@ -111,32 +161,32 @@ VarExpression* Parser::parseVar()
         return nullptr;
     }
 
-    VarExpression* variable = new VarExpression(Tok.getText());
+    Expression* variable = new Expression(Tok.getText());
     advance();
-
+    return variable;
 }
 
-CondExpression* Parser::parseCondition()
+Expression* Parser::parseCondition()
 {
-
+    return NULL;
 }
 
 
-Expr* Parser::parseSubCondition()
+Expression* Parser::parseSubCondition()
 {
-
+    return NULL;
 }
 
 LoopStatement* Parser::parseLoop()
 {
-
+    return NULL;
 }
 
 
 
 
-
-
-
-
-
+Base* Parser::parse()
+{
+    Base* Res = parseS();
+    return (Base*) Res;
+}

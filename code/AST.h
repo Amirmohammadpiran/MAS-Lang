@@ -1,75 +1,118 @@
 #ifndef AST_H
 #define AST_H
 
-class AST {
-public:
-    virtual void accept(ASTVisitor& V)
-    {
-        V.visit(*this);
-    }
-};
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/InitLLVM.h"
+#include "llvm/Support/raw_ostream.h"
 
+class AST; // Abstract Syntax Tree
+class Expression; // top level expression that is evaluated to boolean, int or variable name at last
+class Base; // top level program
+class Statement; // top level statement
+class BinaryOp;
 
 class ASTVisitor
 {
 public:
     // Virtual visit functions for each AST node type
-    virtual void visit(AST&) {}               
-    virtual void visit(Expr&) {}              
-    virtual void visit(Base&) = 0;             
-    virtual void visit(Statement&) = 0;          
-    virtual void visit(BinaryOp&) = 0;        
+    virtual void visit(AST&) {}
+    virtual void visit(Expression&) {}
+    virtual void visit(Base&) = 0;
+    virtual void visit(Statement&) = 0;
+    virtual void visit(BinaryOp&) = 0;
 };
+
+
+
+
+class AST {
+public:
+    virtual ~AST() {}
+    virtual void accept(ASTVisitor& V) = 0;
+};
+
 
 
 // base Node that contains all the syntax nodes
 class Base : public AST{
-
-
-
-    
 private:
     llvm::SmallVector<Statement*> statements;                          // Stores the list of expressions
 
 public:
-    Base(llvm::SmallVector<Statement*> Statements) : statements(Statements) {}
-
-    
-
+    Base(llvm::SmallVector<Statement*> Statements) : statements(Statements) { printf("hello"); }
     llvm::SmallVector<Statement*> getStatements() { return statements; }
 
     llvm::SmallVector<Statement*>::const_iterator begin() { return statements.begin(); }
 
     llvm::SmallVector<Statement*>::const_iterator end() { return statements.end(); }
-
+    virtual void accept(ASTVisitor& V) override
+    {
+        V.visit(*this);
+    }
 
 };
+
 
 class TopLevelEntity : AST {
 public:
     TopLevelEntity() {}
 };
 
-// expression that evaluates to a value -> variable_name, boolean, number
-class Expr : public TopLevelEntity {
 
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
-};
 
-// condition expression that evaluates to boolean
-class CondExpression : public Expr {
+// Value Expression class that holds information about
+// numbers or variable names. forexample a or 56 are 
+// ValExpression and become part of the syntax tree
+class Expression: public TopLevelEntity {
+public:
+    enum ExpressionType {
+        Number,
+        Identifier,
+        Boolean
+    };
 private:
-    bool ConditionBool;
+    ExpressionType Type; // can be number of variable name
+
+    // if it holds a number NumberVal is used else Value is
+    // used to store variable name
+    llvm::StringRef Value;
+    int NumberVal;
+    bool BoolVal;
 
 public:
-    CondExpression(bool ConditionBool): ConditionBool(ConditionBool) {}
+    Expression() {}
+    Expression(llvm::StringRef value): Type(ExpressionType::Identifier), Value(value) {} // store string
+    Expression(int value) : Type(ExpressionType::Number), NumberVal(value) {} // store number
+    Expression(bool value) : Type(ExpressionType::Boolean), BoolVal(value) {} // store boolean
+    
+    bool isNumber() {
+        if (Type == ExpressionType::Number)
+            return true;
+        return false;
+    }
 
-    bool getBooleanValue()
-    {
-        return ConditionBool;
+    bool isBoolean() {
+        if (Type == ExpressionType::Boolean)
+            return true;
+        return false;
+    }
+
+    bool isVariable() {
+        if (Type == ExpressionType::Identifier)
+            return true;
+        return false;
+    }
+
+    llvm::StringRef getValue() {
+        return Value;
+    }
+
+    int getNumber() {
+        return NumberVal;
+    }
+
+    bool getBoolean() {
+        return BoolVal;
     }
 
     virtual void accept(ASTVisitor& V) override
@@ -78,47 +121,7 @@ public:
     }
 };
 
-// value expression that evaluates to number
-class ValExpression : public Expr {
-private:
-    int val;
-
-public:
-    ValExpression(): val(0) {}
-    ValExpression(int val) : val(val) {}
-
-
-    int getVal()
-    {
-        return val;
-    }
-
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
-};
-
-// variable expression that evaluates to variable name
-class VarExpression : public Expr {
-private:
-    llvm::StringRef varName;
-
-public:
-    VarExpression(llvm::StringRef varName): varName(varName) {}
-
-    llvm::StringRef getName()
-    {
-        return varName;
-    }
-
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
-};
-
-// stores information of a statement
+// stores information of a statement. forexample x=56; is a statement
 class Statement : public TopLevelEntity {
 public:
     Statement() {}
@@ -145,27 +148,29 @@ class LoopStatement : public Statement {
 };
 
 // assignment statement. this can have declaration or
-// assignment inside it
+// assignment inside it. forexample x=56; or int x=23+25;
 class AssignStatement : public Statement {
 public:
+    // assignment type whether it is declaration
+    // or assignment type
     enum AssignType {
         Declaration,
         Assignment
     };
 private:
 
-    VarExpression* lvalue;
-    Expr* rvalue;
+    Expression* lvalue;
+    Expression* rvalue;
     AssignType type;
 
 public:
-    AssignStatement(VarExpression* lvalue, Expr* rvalue, AssignType type) : lvalue(lvalue), rvalue(rvalue), type(type) {}
+    AssignStatement(Expression* lvalue, Expression* rvalue, AssignType type) : lvalue(lvalue), rvalue(rvalue), type(type) {}
 
-    VarExpression* getLValue() {
+    Expression* getLValue() {
         return lvalue;
     }
 
-    Expr* getRValue() {
+    Expression* getRValue() {
         return rvalue;
     }
 
@@ -175,8 +180,9 @@ public:
     }
 };
 
-
-class BinaryOp : public ValExpression
+// Binary Operation for computation of numbers
+// used in the syntax tree stage
+class BinaryOp : public Expression
 {
 public:
     enum Operator
@@ -188,16 +194,16 @@ public:
     };
 
 private:
-    Expr* Left;                               // Left-hand side expression
-    Expr* Right;                              // Right-hand side expression
+    Expression* Left;                               // Left-hand side expression
+    Expression* Right;                              // Right-hand side expression
     Operator Op;                              // Operator of the binary operation
 
 public:
-    BinaryOp(Operator Op, Expr* L, Expr* R) : Op(Op), Left(L), Right(R) {}
+    BinaryOp(Operator Op, Expression* L, Expression* R) : Op(Op), Left(L), Right(R) {}
 
-    Expr* getLeft() { return Left; }
+    Expression* getLeft() { return Left; }
 
-    Expr* getRight() { return Right; }
+    Expression* getRight() { return Right; }
 
     Operator getOperator() { return Op; }
 

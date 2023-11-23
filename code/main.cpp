@@ -4,6 +4,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include <iostream>
 #include "AST.h"
+#include "Parser.h"
 
 using namespace std;
 
@@ -22,15 +23,13 @@ int main(int argc, const char **argv)
 
     Token nextToken;
 
-    Lexer lexer(Input);
+    Lexer lexer("int a = 56 + 85;");
 
-    lexer.next(nextToken);
-    while (nextToken.getKind() != 0) {
-        cout << nextToken.getKind();
-        cout << "\n";
-        lexer.next(nextToken);
-    }
+    Parser Parser(lexer);
+    AST* Tree = Parser.parse();
+
     
+
 
     return 0;
 }
