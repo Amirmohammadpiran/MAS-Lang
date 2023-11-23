@@ -217,7 +217,9 @@ public:
         Plus,
         Minus,
         Mul,
-        Div
+        Div,
+        Mod,
+        Pow
     };
 
 private:

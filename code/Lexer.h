@@ -48,6 +48,7 @@ class Token {
             KW_true,        // true
             KW_false,       // false
             eof,            // end of file
+            mod             // %
         };
 
     private:

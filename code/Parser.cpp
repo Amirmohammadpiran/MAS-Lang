@@ -16,18 +16,9 @@ Base* Parser::parseS()
         {
         case Token::ident:
         {
-            llvm::SmallVector<AssignStatement*> states = parseAssign();
+            AssignStatement* state = parseAssign();
 
-            if (states.size() == 0)
-            {
-                return nullptr;
-            }
-
-            while (states.size() > 0)
-            {
-                statements.push_back(states.back());
-                states.pop_back();
-            }
+            statements.push_back(state);
             break;
         }
         case Token::KW_int:
@@ -118,15 +109,15 @@ llvm::SmallVector<DecStatement*> Parser::parseDefine()
 
 
 
-    if (variables.size() != values.size())
+    if (variables.size() < values.size())
     {
         Error::AssignmentSidesNotEqual();
     }
     else
     {
-        while (variables.size() != 0)
+        while (values.size() != 0)
         {
-            assignments.push_back(new DecStatement(variables.back(), values.back()));
+            assignments.push_back(new DecStatement(variables.back(), values.size() > 0 ? values.back() : new Expression(0)));
             variables.pop_back();
             values.pop_back();
         }
@@ -167,21 +158,31 @@ Expression* Parser::parseExpr()
 
 Expression* Parser::parseTerm()
 {
-    Expression* Left = parseFactor();
-    while (Tok.isOneOf(Token::star, Token::slash))
+    Expression* Left = parsePower();
+    while (Tok.isOneOf(Token::star, Token::slash, Token::mod))
     {
         BinaryOp::Operator Op =
-            Tok.is(Token::star) ? BinaryOp::Mul : BinaryOp::Div;
+            Tok.is(Token::star) ? BinaryOp::Mul : Tok.is(Token::slash) ? BinaryOp::Div : BinaryOp::Mod;
         advance();
-        Expression* Right = parseFactor();
+        Expression* Right = parsePower();
         Left = new BinaryOp(Op, Left, Right);
     }
     return Left;
 }
 
+
 Expression* Parser::parsePower()
 {
-    return NULL;
+    Expression* Left = parseFactor();
+    while (Tok.is(Token::power))
+    {
+        BinaryOp::Operator Op =
+            BinaryOp::Pow;
+        advance();
+        Expression* Right = parseFactor();
+        Left = new BinaryOp(Op, Left, Right);
+    }
+    return Left;
 }
 
 Expression* Parser::parseFactor()
@@ -224,71 +225,54 @@ Expression* Parser::parseFactor()
 }
 
 
-llvm::SmallVector<AssignStatement*> Parser::parseAssign()
+AssignStatement* Parser::parseAssign()
 {
-    llvm::SmallVector<AssignStatement*> assignments;
+    Expression* variable;
+    Expression* value;
 
-    llvm::SmallVector<Expression*> variables;
-    llvm::SmallVector<Expression*> values;
-
-
-    bool SeenTokenVariable = true;
-    while (SeenTokenVariable)
-    {
-        Expression* lhand = parseVar();
-        variables.push_back(lhand);
-
-        if (!Tok.is(Token::comma))
-            SeenTokenVariable = false;
-        else
-            advance();
-    }
-
-
+    variable = parseVar();
     
-    if (!Tok.is(Token::equal))
+    if (Tok.is(Token::minus_equal))
+    {
+        advance();
+        value = parseExpr();
+        value = new BinaryOp(BinaryOp::Minus, variable, value);
+
+    } else if (Tok.is(Token::plus_equal))
+    {
+        advance();
+        value = parseExpr();
+        value = new BinaryOp(BinaryOp::Plus, variable, value);
+    }
+    else if (Tok.is(Token::star_equal))
+    {
+        advance();
+        value = parseExpr();
+        value = new BinaryOp(BinaryOp::Mul, variable, value);
+    }
+    else if (Tok.is(Token::slash_equal))
+    {
+        advance();
+        value = parseExpr();
+        value = new BinaryOp(BinaryOp::Div, variable, value);
+    }
+    else if (Tok.is(Token::equal))
+    {
+        advance(); // pass equal
+        value = parseExpr();
+    }
+    else
     {
         Error::AssignmentEqualNotFound();
     }
     
-
-    advance(); // pass equal
-
-    bool SeenTokenValue = true;
-    while (SeenTokenValue)
+    if (!Tok.is(Token::eoi))
     {
-        Expression* rhand = parseExpr();
-        values.push_back(rhand);
-
-        if (!Tok.is(Token::comma))
-            SeenTokenValue = false;
-        else
-            advance();
+        Error::SemiColonNotFound();
     }
 
-    if (variables.size() != values.size())
-    {
-        Error::AssignmentSidesNotEqual();
-    }
-    else
-    {
-        while (variables.size() != 0)
-        {
-            assignments.push_back(new AssignStatement(variables.back(), values.back()));
-            variables.pop_back();
-            values.pop_back();
-        }
-
-        if (Tok.is(Token::eoi))
-        {
-            advance();
-            return assignments;
-        }
-        else
-        {
-            Error::SemiColonNotFound();
-        }
-    }
+    advance(); // pass semicolon
+    return new AssignStatement(variable, value);
 
 }
 
@@ -305,16 +289,6 @@ Expression* Parser::parseVar()
     return variable;
 }
 
-Expression* Parser::parseCondition()
-{
-    return NULL;
-}
-
-
-Expression* Parser::parseSubCondition()
-{
-    return NULL;
-}
 
 LoopStatement* Parser::parseLoop()
 {

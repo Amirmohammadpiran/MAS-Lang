@@ -51,9 +51,7 @@ public:
     Expression* parseTerm();
     Expression* parsePower();
     Expression* parseFactor();
-    llvm::SmallVector<AssignStatement*> parseAssign();
-    Expression* parseCondition();
-    Expression* parseSubCondition();
+    AssignStatement* parseAssign();
 	LoopStatement* parseLoop();
     Expression* parseVar();
 

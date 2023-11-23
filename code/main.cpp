@@ -23,7 +23,7 @@ int main(int argc, const char **argv)
 
     Token nextToken;
 
-    Lexer lexer(Input);
+    Lexer lexer("a = 4 ^ 5 * 2;");
 
 
     Parser Parser(lexer);
