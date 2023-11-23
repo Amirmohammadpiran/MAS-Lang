@@ -23,7 +23,8 @@ int main(int argc, const char **argv)
 
     Token nextToken;
 
-    Lexer lexer("int a = 56 + 85;");
+    Lexer lexer(Input);
+
 
     Parser Parser(lexer);
     AST* Tree = Parser.parse();

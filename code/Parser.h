@@ -45,13 +45,13 @@ class Parser {
 
 public:
 	Base* parseS();
-	AssignStatement* parseDefine();
+    llvm::SmallVector<DecStatement*> parseDefine();
     Expression* parseLineSPC();
     Expression* parseExpr();
     Expression* parseTerm();
     Expression* parsePower();
     Expression* parseFactor();
-	AssignStatement* parseAssign();
+    llvm::SmallVector<AssignStatement*> parseAssign();
     Expression* parseCondition();
     Expression* parseSubCondition();
 	LoopStatement* parseLoop();

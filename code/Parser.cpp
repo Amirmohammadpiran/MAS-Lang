@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 #include "Parser.h"
+#include "Error.h"
 #endif
 
 
@@ -9,25 +10,38 @@
 Base* Parser::parseS() 
 {
     llvm::SmallVector<Statement*> statements;
-    while (!Tok.is(Token::eoi))
+    while (!Tok.is(Token::eof))
     {
         switch (Tok.getKind())
         {
         case Token::ident:
         {
-            Statement* state = parseAssign();
-            if (state)
+            llvm::SmallVector<AssignStatement*> states = parseAssign();
+
+            if (states.size() == 0)
             {
-                statements.push_back(state);
+                return nullptr;
+            }
+
+            while (states.size() > 0)
+            {
+                statements.push_back(states.back());
+                states.pop_back();
             }
             break;
         }
         case Token::KW_int:
         {
-            Statement* state = parseDefine();
-            if (state)
+            llvm::SmallVector<DecStatement*> states = parseDefine();
+            if (states.size() == 0)
             {
-                statements.push_back(state);
+                return nullptr;
+            }
+
+            while (states.size() > 0)
+            {
+                statements.push_back(states.back());
+                states.pop_back();
             }
             break;
         }
@@ -40,7 +54,6 @@ Base* Parser::parseS()
 
 
         }
-        advance(); 
     }
     return new Base(statements);
 _error2:
@@ -50,9 +63,86 @@ _error2:
 
 }
 
-AssignStatement* Parser::parseDefine()
+llvm::SmallVector<DecStatement*> Parser::parseDefine()
 {
-    return NULL;
+    llvm::SmallVector<DecStatement*> assignments;
+
+    llvm::SmallVector<Expression*> variables;
+    llvm::SmallVector<Expression*> values;
+
+    advance();
+    bool SeenTokenVariable = true;
+    while (SeenTokenVariable)
+    {
+        Expression* lhand = parseVar();
+        variables.push_back(lhand);
+
+        if (!Tok.is(Token::comma))
+            SeenTokenVariable = false;
+        else
+            advance();
+    }
+
+
+
+    if (Tok.is(Token::eoi))
+    {
+        bool SeenTokenValue = true;
+        for (int i=0;i<variables.size();i++)
+        {
+            Expression* rhand = new Expression(0);
+            values.push_back(rhand);
+        }
+    }
+    else if (!Tok.is(Token::equal))
+    {
+        Error::AssignmentEqualNotFound();
+    }
+    else
+    {
+        advance(); // pass equal
+
+        bool SeenTokenValue = true;
+        while (SeenTokenValue)
+        {
+            Expression* rhand = parseExpr();
+            values.push_back(rhand);
+
+            if (!Tok.is(Token::comma))
+                SeenTokenValue = false;
+            else
+                advance();
+        }
+    }
+
+
+
+
+    if (variables.size() != values.size())
+    {
+        Error::AssignmentSidesNotEqual();
+    }
+    else
+    {
+        while (variables.size() != 0)
+        {
+            assignments.push_back(new DecStatement(variables.back(), values.back()));
+            variables.pop_back();
+            values.pop_back();
+        }
+
+        if (Tok.is(Token::eoi))
+        {
+            advance();
+            return assignments;
+        }
+        else
+        {
+            Error::SemiColonNotFound();
+        }
+    }
+
+
 }
 Expression* Parser::parseLineSPC()
 {
@@ -134,22 +224,72 @@ Expression* Parser::parseFactor()
 }
 
 
-AssignStatement* Parser::parseAssign()
+llvm::SmallVector<AssignStatement*> Parser::parseAssign()
 {
-    Expression* lhand;
-    Expression* rhand;
+    llvm::SmallVector<AssignStatement*> assignments;
 
-    lhand = parseVar();
+    llvm::SmallVector<Expression*> variables;
+    llvm::SmallVector<Expression*> values;
 
-    if (!Tok.is(Token::equal))
+
+    bool SeenTokenVariable = true;
+    while (SeenTokenVariable)
     {
-        error();
-        return nullptr;
+        Expression* lhand = parseVar();
+        variables.push_back(lhand);
+
+        if (!Tok.is(Token::comma))
+            SeenTokenVariable = false;
+        else
+            advance();
     }
 
-    advance();
-    rhand = parseExpr();
-    return new AssignStatement(lhand, rhand, AssignStatement::AssignType::Assignment);
+
+    
+    if (!Tok.is(Token::equal))
+    {
+        Error::AssignmentEqualNotFound();
+    }
+    
+
+    advance(); // pass equal
+
+    bool SeenTokenValue = true;
+    while (SeenTokenValue)
+    {
+        Expression* rhand = parseExpr();
+        values.push_back(rhand);
+
+        if (!Tok.is(Token::comma))
+            SeenTokenValue = false;
+        else
+            advance();
+    }
+
+    if (variables.size() != values.size())
+    {
+        Error::AssignmentSidesNotEqual();
+    }
+    else
+    {
+        while (variables.size() != 0)
+        {
+            assignments.push_back(new AssignStatement(variables.back(), values.back()));
+            variables.pop_back();
+            values.pop_back();
+        }
+
+        if (Tok.is(Token::eoi))
+        {
+            advance();
+            return assignments;
+        }
+        else
+        {
+            Error::SemiColonNotFound();
+        }
+    }
+
 }
 
 
@@ -157,8 +297,7 @@ Expression* Parser::parseVar()
 {
     if (!Tok.is(Token::ident))
     {
-        error();
-        return nullptr;
+        Error::VariableNameNotFound();
     }
 
     Expression* variable = new Expression(Tok.getText());

@@ -31,7 +31,7 @@ void Lexer::next(Token &token) {
     }
 
     if (!*BufferPtr) {              // since end of context is 0 -> !0 = true -> end of context
-        token.Kind = Token::eoi;
+        token.Kind = Token::eof;
         return;
     }
 

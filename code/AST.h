@@ -39,7 +39,7 @@ private:
     llvm::SmallVector<Statement*> statements;                          // Stores the list of expressions
 
 public:
-    Base(llvm::SmallVector<Statement*> Statements) : statements(Statements) { printf("hello"); }
+    Base(llvm::SmallVector<Statement*> Statements) : statements(Statements) {}
     llvm::SmallVector<Statement*> getStatements() { return statements; }
 
     llvm::SmallVector<Statement*>::const_iterator begin() { return statements.begin(); }
@@ -124,7 +124,17 @@ public:
 // stores information of a statement. forexample x=56; is a statement
 class Statement : public TopLevelEntity {
 public:
-    Statement() {}
+    enum StateMentType {
+        Declaration,
+        Assignment,
+        If,
+        Loop
+    };
+
+private:
+    StateMentType Type;
+public:
+    Statement(StateMentType type): Type(type) {}
     virtual void accept(ASTVisitor& V) override
     {
         V.visit(*this);
@@ -147,25 +157,42 @@ class LoopStatement : public Statement {
     }
 };
 
-// assignment statement. this can have declaration or
-// assignment inside it. forexample x=56; or int x=23+25;
-class AssignStatement : public Statement {
-public:
-    // assignment type whether it is declaration
-    // or assignment type
-    enum AssignType {
-        Declaration,
-        Assignment
-    };
+class DecStatement : public Statement {
 private:
 
     Expression* lvalue;
     Expression* rvalue;
-    AssignType type;
+    Statement::StateMentType type;
 
 public:
-    AssignStatement(Expression* lvalue, Expression* rvalue, AssignType type) : lvalue(lvalue), rvalue(rvalue), type(type) {}
+    DecStatement(Expression* lvalue, Expression* rvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Declaration), Statement(type) { }
+    DecStatement(Expression* lvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Declaration), Statement(type) { rvalue = new Expression(0); }
 
+    Expression* getLValue() {
+        return lvalue;
+    }
+
+    Expression* getRValue() {
+        return rvalue;
+    }
+
+    virtual void accept(ASTVisitor& V) override
+    {
+        V.visit(*this);
+    }
+};
+
+// assignment statement. this can have declaration or
+// assignment inside it. forexample x=56; or int x=23+25;
+class AssignStatement : public Statement {
+private:
+
+    Expression* lvalue;
+    Expression* rvalue;
+    Statement::StateMentType type;
+
+public:
+    AssignStatement(Expression* lvalue, Expression* rvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Assignment), Statement(type) { }
     Expression* getLValue() {
         return lvalue;
     }
