@@ -23,3 +23,15 @@ void Error::VariableNameNotFound()
 	cout << "Variable name not found...";
 	exit(3);
 }
+
+void Error::BooleanValueExpected()
+{
+	cout << "Boolean value expected...";
+	exit(3);
+}
+
+void Error::RightParanthesisExpected()
+{
+	cout << "Right paranthesis expected but not found...";
+	exit(3);
+}

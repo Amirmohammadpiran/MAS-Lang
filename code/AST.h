@@ -14,12 +14,12 @@ class BinaryOp;
 class ASTVisitor
 {
 public:
-    // Virtual visit functions for each AST node type
-    virtual void visit(AST&) {}
-    virtual void visit(Expression&) {}
-    virtual void visit(Base&) = 0;
-    virtual void visit(Statement&) = 0;
-    virtual void visit(BinaryOp&) = 0;
+	// Virtual visit functions for each AST node type
+	virtual void visit(AST&) {}
+	virtual void visit(Expression&) {}
+	virtual void visit(Base&) = 0;
+	virtual void visit(Statement&) = 0;
+	virtual void visit(BinaryOp&) = 0;
 };
 
 
@@ -27,35 +27,35 @@ public:
 
 class AST {
 public:
-    virtual ~AST() {}
-    virtual void accept(ASTVisitor& V) = 0;
+	virtual ~AST() {}
+	virtual void accept(ASTVisitor& V) = 0;
 };
 
 
 
 // base Node that contains all the syntax nodes
-class Base : public AST{
+class Base : public AST {
 private:
-    llvm::SmallVector<Statement*> statements;                          // Stores the list of expressions
+	llvm::SmallVector<Statement*> statements;                          // Stores the list of expressions
 
 public:
-    Base(llvm::SmallVector<Statement*> Statements) : statements(Statements) {}
-    llvm::SmallVector<Statement*> getStatements() { return statements; }
+	Base(llvm::SmallVector<Statement*> Statements) : statements(Statements) {}
+	llvm::SmallVector<Statement*> getStatements() { return statements; }
 
-    llvm::SmallVector<Statement*>::const_iterator begin() { return statements.begin(); }
+	llvm::SmallVector<Statement*>::const_iterator begin() { return statements.begin(); }
 
-    llvm::SmallVector<Statement*>::const_iterator end() { return statements.end(); }
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
+	llvm::SmallVector<Statement*>::const_iterator end() { return statements.end(); }
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
 
 };
 
 
 class TopLevelEntity : AST {
 public:
-    TopLevelEntity() {}
+	TopLevelEntity() {}
 };
 
 
@@ -63,123 +63,126 @@ public:
 // Value Expression class that holds information about
 // numbers or variable names. forexample a or 56 are 
 // ValExpression and become part of the syntax tree
-class Expression: public TopLevelEntity {
+class Expression : public TopLevelEntity {
 public:
-    enum ExpressionType {
-        Number,
-        Identifier,
-        Boolean
-    };
+	enum ExpressionType {
+		Number,
+		Identifier,
+		Boolean,
+		BinaryOpType,
+		BooleanOpType
+	};
 private:
-    ExpressionType Type; // can be number of variable name
+	ExpressionType Type; // can be number of variable name
 
-    // if it holds a number NumberVal is used else Value is
-    // used to store variable name
-    llvm::StringRef Value;
-    int NumberVal;
-    bool BoolVal;
+	// if it holds a number NumberVal is used else Value is
+	// used to store variable name
+	llvm::StringRef Value;
+	int NumberVal;
+	bool BoolVal;
 
 public:
-    Expression() {}
-    Expression(llvm::StringRef value): Type(ExpressionType::Identifier), Value(value) {} // store string
-    Expression(int value) : Type(ExpressionType::Number), NumberVal(value) {} // store number
-    Expression(bool value) : Type(ExpressionType::Boolean), BoolVal(value) {} // store boolean
-    
-    bool isNumber() {
-        if (Type == ExpressionType::Number)
-            return true;
-        return false;
-    }
+	Expression() {}
+	Expression(llvm::StringRef value) : Type(ExpressionType::Identifier), Value(value) {} // store string
+	Expression(int value) : Type(ExpressionType::Number), NumberVal(value) {} // store number
+	Expression(bool value) : Type(ExpressionType::Boolean), BoolVal(value) {} // store boolean
+	Expression(ExpressionType type) : Type(type) {}
 
-    bool isBoolean() {
-        if (Type == ExpressionType::Boolean)
-            return true;
-        return false;
-    }
+	bool isNumber() {
+		if (Type == ExpressionType::Number)
+			return true;
+		return false;
+	}
 
-    bool isVariable() {
-        if (Type == ExpressionType::Identifier)
-            return true;
-        return false;
-    }
+	bool isBoolean() {
+		if (Type == ExpressionType::Boolean)
+			return true;
+		return false;
+	}
 
-    llvm::StringRef getValue() {
-        return Value;
-    }
+	bool isVariable() {
+		if (Type == ExpressionType::Identifier)
+			return true;
+		return false;
+	}
 
-    int getNumber() {
-        return NumberVal;
-    }
+	llvm::StringRef getValue() {
+		return Value;
+	}
 
-    bool getBoolean() {
-        return BoolVal;
-    }
+	int getNumber() {
+		return NumberVal;
+	}
 
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
+	bool getBoolean() {
+		return BoolVal;
+	}
+
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
 };
 
 // stores information of a statement. forexample x=56; is a statement
 class Statement : public TopLevelEntity {
 public:
-    enum StateMentType {
-        Declaration,
-        Assignment,
-        If,
-        Loop
-    };
+	enum StateMentType {
+		Declaration,
+		Assignment,
+		If,
+		Loop
+	};
 
 private:
-    StateMentType Type;
+	StateMentType Type;
 public:
-    Statement(StateMentType type): Type(type) {}
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
+	Statement(StateMentType type) : Type(type) {}
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
 };
 
 // if statement
 class IfStatement : public Statement {
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
 };
 
 // loop statement
 class LoopStatement : public Statement {
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
 };
 
 class DecStatement : public Statement {
 private:
 
-    Expression* lvalue;
-    Expression* rvalue;
-    Statement::StateMentType type;
+	Expression* lvalue;
+	Expression* rvalue;
+	Statement::StateMentType type;
 
 public:
-    DecStatement(Expression* lvalue, Expression* rvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Declaration), Statement(type) { }
-    DecStatement(Expression* lvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Declaration), Statement(type) { rvalue = new Expression(0); }
+	DecStatement(Expression* lvalue, Expression* rvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Declaration), Statement(type) { }
+	DecStatement(Expression* lvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Declaration), Statement(type) { rvalue = new Expression(0); }
 
-    Expression* getLValue() {
-        return lvalue;
-    }
+	Expression* getLValue() {
+		return lvalue;
+	}
 
-    Expression* getRValue() {
-        return rvalue;
-    }
+	Expression* getRValue() {
+		return rvalue;
+	}
 
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
 };
 
 // assignment statement. this can have declaration or
@@ -187,24 +190,24 @@ public:
 class AssignStatement : public Statement {
 private:
 
-    Expression* lvalue;
-    Expression* rvalue;
-    Statement::StateMentType type;
+	Expression* lvalue;
+	Expression* rvalue;
+	Statement::StateMentType type;
 
 public:
-    AssignStatement(Expression* lvalue, Expression* rvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Assignment), Statement(type) { }
-    Expression* getLValue() {
-        return lvalue;
-    }
+	AssignStatement(Expression* lvalue, Expression* rvalue) : lvalue(lvalue), rvalue(rvalue), type(Statement::StateMentType::Assignment), Statement(type) { }
+	Expression* getLValue() {
+		return lvalue;
+	}
 
-    Expression* getRValue() {
-        return rvalue;
-    }
+	Expression* getRValue() {
+		return rvalue;
+	}
 
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
 };
 
 // Binary Operation for computation of numbers
@@ -212,34 +215,68 @@ public:
 class BinaryOp : public Expression
 {
 public:
-    enum Operator
-    {
-        Plus,
-        Minus,
-        Mul,
-        Div,
-        Mod,
-        Pow
-    };
+	enum Operator
+	{
+		Plus,
+		Minus,
+		Mul,
+		Div,
+		Mod,
+		Pow
+	};
 
 private:
-    Expression* Left;                               // Left-hand side expression
-    Expression* Right;                              // Right-hand side expression
-    Operator Op;                              // Operator of the binary operation
+	Expression* Left;                               // Left-hand side expression
+	Expression* Right;                              // Right-hand side expression
+	Operator Op;                              // Operator of the binary operation
 
 public:
-    BinaryOp(Operator Op, Expression* L, Expression* R) : Op(Op), Left(L), Right(R) {}
+	BinaryOp(Operator Op, Expression* L, Expression* R) : Op(Op), Left(L), Right(R), Expression(ExpressionType::BinaryOpType) {}
 
-    Expression* getLeft() { return Left; }
+	Expression* getLeft() { return Left; }
 
-    Expression* getRight() { return Right; }
+	Expression* getRight() { return Right; }
 
-    Operator getOperator() { return Op; }
+	Operator getOperator() { return Op; }
 
-    virtual void accept(ASTVisitor& V) override
-    {
-        V.visit(*this);
-    }
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
+};
+
+class BooleanOp : public Expression
+{
+public:
+	enum Operator
+	{
+		LessEqual,
+		Less,
+		Greater,
+		GreaterEqual,
+		Equal,
+		And,
+		Or
+	};
+
+private:
+	Expression* Left;                               // Left-hand side expression
+	Expression* Right;                              // Right-hand side expression
+	Operator Op;                              // Operator of the boolean operation
+
+public:
+	BooleanOp(Operator Op, Expression* L, Expression* R) : Op(Op), Left(L), Right(R), Expression(ExpressionType::BooleanOpType) { }
+
+	Expression* getLeft() { return Left; }
+
+	Expression* getRight() { return Right; }
+
+	Operator getOperator() { return Op; }
+
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
 };
 
 #endif

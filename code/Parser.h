@@ -8,36 +8,36 @@
 
 
 class Parser {
-    Lexer& Lex;  
-    Token Tok;    
-    bool HasError; 
+	Lexer& Lex;
+	Token Tok;
+	bool HasError;
 
-    void error()
-    {
-        llvm::errs() << "Unexpected: " << Tok.getText() << "\n";
-        HasError = true;
-    }
+	void error()
+	{
+		llvm::errs() << "Unexpected: " << Tok.getText() << "\n";
+		HasError = true;
+	}
 
 
-    void advance() { Lex.next(Tok); }
+	void advance() { Lex.next(Tok); }
 
-    bool expect(Token::TokenKind Kind)
-    {
-        if (Tok.getKind() != Kind)
-        {
-            error();
-            return true;
-        }
-        return false;
-    }
+	bool expect(Token::TokenKind Kind)
+	{
+		if (Tok.getKind() != Kind)
+		{
+			error();
+			return true;
+		}
+		return false;
+	}
 
-    bool consume(Token::TokenKind Kind)
-    {
-        if (expect(Kind))
-            return true;
-        advance();
-        return false;
-    }
+	bool consume(Token::TokenKind Kind)
+	{
+		if (expect(Kind))
+			return true;
+		advance();
+		return false;
+	}
 
 	// parsing functions according to the regex
 	// pattern specified. each one produces its own node
@@ -45,27 +45,28 @@ class Parser {
 
 public:
 	Base* parseS();
-    llvm::SmallVector<DecStatement*> parseDefine();
-    Expression* parseLineSPC();
-    Expression* parseExpr();
-    Expression* parseTerm();
-    Expression* parsePower();
-    Expression* parseFactor();
-    AssignStatement* parseAssign();
+	llvm::SmallVector<DecStatement*> parseDefine();
+	Expression* parseExpr();
+	Expression* parseTerm();
+	Expression* parsePower();
+	Expression* parseFactor();
+	AssignStatement* parseAssign();
 	LoopStatement* parseLoop();
-    Expression* parseVar();
+	Expression* parseCondition();
+	Expression* parseSubCondition();
+	Expression* parseVar();
 
 public:
-    // initializes all members and retrieves the first token
-    Parser(Lexer& Lex) : Lex(Lex), HasError(false)
-    {
-        advance();
-    }
+	// initializes all members and retrieves the first token
+	Parser(Lexer& Lex) : Lex(Lex), HasError(false)
+	{
+		advance();
+	}
 
-    // get the value of error flag
-    bool hasError() { return HasError; }
+	// get the value of error flag
+	bool hasError() { return HasError; }
 
-    Base* parse();
+	Base* parse();
 };
 
 #endif

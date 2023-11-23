@@ -3,7 +3,7 @@
 
 #include <iostream>
 using namespace std;
-	
+
 static class Error {
 
 public:
@@ -11,6 +11,8 @@ public:
 	static void AssignmentEqualNotFound();
 	static void AssignmentSidesNotEqual();
 	static void VariableNameNotFound();
+	static void BooleanValueExpected();
+	static void RightParanthesisExpected();
 };
 
 #endif

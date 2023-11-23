@@ -11,26 +11,26 @@ using namespace std;
 
 // Input in llvm format
 static llvm::cl::opt<std::string> Input(llvm::cl::Positional,
-    llvm::cl::desc("<input expression>"),
-    llvm::cl::init(""));
+	llvm::cl::desc("<input expression>"),
+	llvm::cl::init(""));
 
 
-int main(int argc, const char **argv)
+int main(int argc, const char** argv)
 {
-    // parse command line with builtin llvm function
-    llvm::InitLLVM X(argc, argv);
-    llvm::cl::ParseCommandLineOptions(argc, argv, "MAS-Lang Compiler\n");
+	// parse command line with builtin llvm function
+	llvm::InitLLVM X(argc, argv);
+	llvm::cl::ParseCommandLineOptions(argc, argv, "MAS-Lang Compiler\n");
 
-    Token nextToken;
+	Token nextToken;
 
-    Lexer lexer("a = 4 ^ 5 * 2;");
-
-
-    Parser Parser(lexer);
-    AST* Tree = Parser.parse();
-
-    
+	Lexer lexer("a = 3 ^ (5 * 53 + 2) - 2");
 
 
-    return 0;
+	Parser Parser(lexer);
+	AST* Tree = Parser.parse();
+
+
+
+
+	return 0;
 }
