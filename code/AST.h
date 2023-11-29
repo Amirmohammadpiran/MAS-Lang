@@ -145,20 +145,31 @@ public:
 };
 
 // if statement
-class IfStatement : public Statement {
+class ControlStatement : public Statement {
+
+private:
+	Expression* Condition;
+	llvm::SmallVector<Statement*> Statements;
+
+public:
+	ControlStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type): Condition(condition), Statements(statements), Statement(type) { }
+
+	Expression* getCondition()
+	{
+		return Condition;
+	}
+
+	llvm::SmallVector<Statement*> getStatements()
+	{
+		return Statements;
+	}
+
 	virtual void accept(ASTVisitor& V) override
 	{
 		V.visit(*this);
 	}
 };
 
-// loop statement
-class LoopStatement : public Statement {
-	virtual void accept(ASTVisitor& V) override
-	{
-		V.visit(*this);
-	}
-};
 
 class DecStatement : public Statement {
 private:

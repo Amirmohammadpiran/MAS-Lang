@@ -23,7 +23,7 @@ int main(int argc, const char** argv)
 
 	Token nextToken;
 
-	Lexer lexer("a = 3 ^ (5 * 53 + 2) - 2");
+	Lexer lexer("loopc a > 3: begin a = 5; end");
 
 
 	Parser Parser(lexer);

@@ -35,3 +35,27 @@ void Error::RightParanthesisExpected()
 	cout << "Right paranthesis expected but not found...";
 	exit(3);
 }
+
+void Error::NumberVariableExpected()
+{
+	cout << "Expected a number or a variable, but found none...";
+	exit(3);
+}
+
+void Error::BeginExpectedAfterColon()
+{
+	cout << "Expected 'begin' after condition, but found none...";
+	exit(3);
+}
+
+void Error::EndNotSeenForIf()
+{
+	cout << "Expected 'end' for if statement, but found none...";
+	exit(3);
+}
+
+void Error::ColonExpectedAfterCondition()
+{
+	cout << "Colon expected after condition, but found none...";
+	exit(3);
+}

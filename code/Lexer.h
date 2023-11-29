@@ -48,7 +48,9 @@ public:
 		KW_true,        // true
 		KW_false,       // false
 		eof,            // end of file
-		mod             // %
+		mod,            // %
+		begin,			// begin
+		end				// end
 	};
 
 private:

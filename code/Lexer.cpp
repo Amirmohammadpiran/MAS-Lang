@@ -75,6 +75,14 @@ void Lexer::next(Token& token) {
 		else if (Context == "false") {
 			kind = Token::KW_false;
 		}
+		else if (Context == "begin")
+		{
+			kind = Token::begin;
+		}
+		else if (Context == "end")
+		{
+			kind = Token::end;
+		}
 		else {
 			kind = Token::ident;
 		}

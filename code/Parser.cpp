@@ -34,21 +34,30 @@ Base* Parser::parseS()
 			}
 			break;
 		}
+		case Token::KW_if:
+		{
+			ControlStatement* statement = parseIf();
+			statements.push_back(statement);
+			break;
+
+		}
+		case Token::KW_loopc:
+		{
+			ControlStatement* statement = parseLoop();
+			statements.push_back(statement);
+			break;
+		}
 
 		default:
 		{
-			goto _error2;
-			break;
+			return new Base(statements);
 		}
 
 
 		}
 	}
 	return new Base(statements);
-_error2:
-	while (Tok.getKind() != Token::eoi)
-		advance();
-	return nullptr;
+
 
 }
 
@@ -207,11 +216,7 @@ Expression* Parser::parseFactor()
 	}
 	default: // error handling
 	{
-		if (!Res)
-			error();
-		while (!Tok.isOneOf(Token::r_paren, Token::star, Token::plus, Token::minus, Token::slash, Token::eoi))
-			advance();
-		break;
+		Error::NumberVariableExpected();
 	}
 
 	}
@@ -285,9 +290,41 @@ Expression* Parser::parseVar()
 }
 
 
-LoopStatement* Parser::parseLoop()
+ControlStatement* Parser::parseLoop()
 {
-	return NULL;
+	advance();			// pass loop identifier
+
+	Expression* condition = parseCondition();
+
+
+
+	if (!Tok.is(Token::colon))
+	{
+		Error::ColonExpectedAfterCondition();
+	}
+
+	advance();
+
+	if (Tok.is(Token::begin))
+	{
+		advance();
+
+		Base* AllStates = parseS();
+
+		if (!consume(Token::end))
+		{
+
+			return new ControlStatement(condition, AllStates->getStatements(), Statement::StateMentType::Loop);
+		}
+		else
+		{
+			Error::EndNotSeenForIf();
+		}
+	}
+	else
+	{
+		Error::BeginExpectedAfterColon();
+	}
 }
 
 Expression* Parser::parseCondition()
@@ -380,9 +417,48 @@ Expression* Parser::parseSubCondition()
 	}
 }
 
+ControlStatement* Parser::parseIf()
+{
+	advance();			// pass if identifier
+
+	Expression* condition = parseCondition();
+
+	
+
+	if (!Tok.is(Token::colon))
+	{
+		Error::ColonExpectedAfterCondition();
+	}
+
+	advance();
+
+	if (Tok.is(Token::begin))
+	{
+		advance();
+
+		Base* AllStates = parseS();
+
+		if (!consume(Token::end))
+		{
+	
+			return new ControlStatement(condition, AllStates->getStatements(), Statement::StateMentType::If);
+		}
+		else
+		{
+			Error::EndNotSeenForIf();
+		}
+	}
+	else
+	{
+		Error::BeginExpectedAfterColon();
+	}
+
+
+}
+
 
 Base* Parser::parse()
 {
 	Base* Res = parseS();
-	return (Base*)Res;
+	return Res;
 }
