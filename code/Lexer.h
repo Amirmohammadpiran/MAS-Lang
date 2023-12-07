@@ -3,7 +3,7 @@
 
 #include "llvm/ADT/StringRef.h"        // encapsulates a pointer to a C string and its length
 #include "llvm/Support/MemoryBuffer.h" // provides read-only access to a block of memory, filled
-                                       // with the content of a file
+// with the content of a file
 
 class Lexer;
 
@@ -50,40 +50,41 @@ class Token {
             KW_false,       // false
         };
 
-    private:
-        TokenKind Kind;         // <type of token,>
-        llvm::StringRef Text;   // <,token context>
-    public:
-        TokenKind getKind() const { return Kind; }
-        llvm::StringRef getText() const { return Text; }
 
-        bool is(TokenKind K) const { return Kind == K; } 
+private:
+	TokenKind Kind;         // <type of token,>
+	llvm::StringRef Text;   // <,token context>
+public:
+	TokenKind getKind() const { return Kind; }
+	llvm::StringRef getText() const { return Text; }
 
-        bool isOneOf(TokenKind K1, TokenKind K2) const {   // kind="+" isOneOf(plus, minus) -> true
-            return is(K1) || is(K2);
-        }
+	bool is(TokenKind K) const { return Kind == K; }
 
-        template <typename... Ts>                           // variadic template
-        bool isOneOf(TokenKind K1, TokenKind K2, Ts... Ks)  // can take several inputs
-            const {
-                return is(K1) || isOneOf(K2, Ks...);
-            }
-    };
+	bool isOneOf(TokenKind K1, TokenKind K2) const {   // kind="+" isOneOf(plus, minus) -> true
+		return is(K1) || is(K2);
+	}
 
-class Lexer{
-    const char *BufferStart;
-    const char *BufferPtr;
+	template <typename... Ts>                           // variadic template
+	bool isOneOf(TokenKind K1, TokenKind K2, Ts... Ks)  // can take several inputs
+		const {
+		return is(K1) || isOneOf(K2, Ks...);
+	}
+};
 
-    public:
-        Lexer(const llvm::StringRef &Buffer) {    // constructor scans the whole context
-            BufferStart = Buffer.begin();
-            BufferPtr = BufferStart;
-        }
+class Lexer {
+	const char* BufferStart;
+	const char* BufferPtr;
 
-    void next(Token &token);                       // gets next token
-    
-    private:
-        void formToken(Token &Result, const char *TokEnd,
-        Token::TokenKind Kind);
-    };
+public:
+	Lexer(const llvm::StringRef& Buffer) {    // constructor scans the whole context
+		BufferStart = Buffer.begin();
+		BufferPtr = BufferStart;
+	}
+
+	void next(Token& token);                       // gets next token
+
+private:
+	void formToken(Token& Result, const char* TokEnd,
+		Token::TokenKind Kind);
+};
 #endif
