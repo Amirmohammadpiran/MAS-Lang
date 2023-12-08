@@ -10,6 +10,9 @@ class Expression; // top level expression that is evaluated to boolean, int or v
 class Base; // top level program
 class Statement; // top level statement
 class BinaryOp;
+class AssignStatement;
+class DecStatement;
+class BooleanOp;
 
 class ASTVisitor
 {
@@ -20,6 +23,9 @@ public:
 	virtual void visit(Base&) = 0;
 	virtual void visit(Statement&) = 0;
 	virtual void visit(BinaryOp&) = 0;
+	virtual void visit(DecStatement&) = 0;
+	virtual void visit(AssignStatement&) = 0;
+	virtual void visit(BooleanOp&) = 0;
 };
 
 
@@ -106,6 +112,7 @@ public:
 		return false;
 	}
 
+	// returns identifier
 	llvm::StringRef getValue() {
 		return Value;
 	}
@@ -116,6 +123,14 @@ public:
 
 	bool getBoolean() {
 		return BoolVal;
+	}
+
+
+	// returns the kind of expression. can be identifier,
+	// number, or an operation
+	ExpressionType getKind()
+	{
+		return Type;
 	}
 
 	virtual void accept(ASTVisitor& V) override
@@ -136,7 +151,15 @@ public:
 
 private:
 	StateMentType Type;
+
 public:
+
+	StateMentType getKind()
+	{
+		return Type;
+	}
+
+
 	Statement(StateMentType type) : Type(type) {}
 	virtual void accept(ASTVisitor& V) override
 	{
