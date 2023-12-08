@@ -5,7 +5,7 @@
 #include "Lexer.h"
 using namespace std;
 
-static class Error {
+class Error {
 
 public:
 	static void SemiColonNotFound();
