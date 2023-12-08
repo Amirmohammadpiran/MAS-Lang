@@ -109,6 +109,10 @@ namespace
             case BinaryOp::Div:
                 V = Builder.CreateSDiv(Left, Right);
                 break;
+            case BinaryOp::Mod:
+                Value* division = Builder.CreateSDiv(Left, Right);
+                Value* multiplication = Builder.CreateNSWMul(division, Right);
+                V = Builder.CreateNSWSub(Left, multiplication);
             }
         }
 
@@ -136,11 +140,25 @@ namespace
             {
                 Builder.CreateStore(val, nameMap[Var]);
             }
+            else
+            {
+                Value* Zero = ConstantInt::get(Type::getInt32Ty(M->getContext()), 0);
+                Builder.CreateStore(Zero, nameMap[Var]);
+            }
             
         }
 
         virtual void visit(AssignStatement& Node) override
         {
+            // Visit the right-hand side of the assignment and get its value.
+            Node.getRValue()->accept(*this);
+            Value* val = V;
+
+            // Get the name of the variable being assigned.
+            auto varName = Node.getLValue()->getValue();
+
+            // Create a store instruction to assign the value to the variable.
+            Builder.CreateStore(val, nameMap[varName]);
 
         }
 
@@ -160,7 +178,7 @@ void CodeGen::compile(AST* Tree)
 {
     // Create an LLVM context and a module.
     LLVMContext Ctx;
-    Module* M = new Module("calc.expr", Ctx);
+    Module* M = new Module("mas.expr", Ctx);
 
     // Create an instance of the ToIRVisitor and run it on the AST to generate LLVM IR.
     ToIRVisitor ToIRn(M);

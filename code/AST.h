@@ -9,10 +9,10 @@ class AST; // Abstract Syntax Tree
 class Expression; // top level expression that is evaluated to boolean, int or variable name at last
 class Base; // top level program
 class Statement; // top level statement
-class BinaryOp;
-class AssignStatement;
-class DecStatement;
-class BooleanOp;
+class BinaryOp; // binary operation of numbers and identifiers
+class AssignStatement; // assignment statement like a = 3;
+class DecStatement; // declaration statement like int a;
+class BooleanOp; // boolean operation like 3 > 6*2;
 
 class ASTVisitor
 {
@@ -193,7 +193,9 @@ public:
 	}
 };
 
-
+/*
+	Declaration statement like int x; or int a = 3;
+*/
 class DecStatement : public Statement {
 private:
 
@@ -219,8 +221,8 @@ public:
 	}
 };
 
-// assignment statement. this can have declaration or
-// assignment inside it. forexample x=56; or int x=23+25;
+// assignment statement. forexample x=56;
+// right hand side is an expression
 class AssignStatement : public Statement {
 private:
 
@@ -245,7 +247,7 @@ public:
 };
 
 // Binary Operation for computation of numbers
-// used in the syntax tree stage
+// used in the syntax tree stage like 3*(56+a*2)/2
 class BinaryOp : public Expression
 {
 public:
@@ -279,6 +281,13 @@ public:
 	}
 };
 
+
+/*
+	a boolean operation of form 3 > 5+1 that consists
+	of 2 lefthand and righthand expressions. these expressions
+	can be number, identifier or of type binaryop.
+	it has an operator that can be +, -, *, /, % or ^
+*/
 class BooleanOp : public Expression
 {
 public:

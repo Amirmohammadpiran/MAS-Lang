@@ -24,7 +24,7 @@ int main(int argc, const char** argv)
 
 	Token nextToken;
 
-	Lexer lexer("int a=3;");
+	Lexer lexer("int a; int b = 3* (5+a); ");
 
 
 	Parser Parser(lexer);
