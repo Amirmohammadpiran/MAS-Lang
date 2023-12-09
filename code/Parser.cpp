@@ -347,7 +347,7 @@ LoopStatement* Parser::parseLoop()
 	{
 		advance();
 
-		Base* AllStates = parseS();
+		Base* AllStates = parseStatement();
 
 		if (!consume(Token::KW_end))
 		{
@@ -487,7 +487,7 @@ IfStatement* Parser::parseIf()
 	{
 		advance();
 
-		Base* AllStates = parseS();
+		Base* AllStates = parseStatement();
 
 		if (!consume(Token::KW_end))
 		{
@@ -524,7 +524,7 @@ ElifStatement* Parser::parseElif()
 	{
 		advance();
 
-		Base* AllStates = parseS();
+		Base* AllStates = parseStatement();
 
 		if (!consume(Token::KW_end))
 		{
@@ -557,7 +557,7 @@ ElseStatement* Parser::parseElse()
 	{
 		advance();
 
-		Base* AllStates = parseS();
+		Base* AllStates = parseStatement();
 
 		if (!consume(Token::KW_end))
 		{
