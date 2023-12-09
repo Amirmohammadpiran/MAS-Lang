@@ -6,6 +6,12 @@ void Error::SemiColonNotFound()
 	exit(3);
 }
 
+void Error::DefineInsideScope()
+{
+	cout << "Can't define variable insdie scope";
+	exit(3);
+}
+
 void Error::AssignmentEqualNotFound()
 {
 	cout << "Assignment does not have a '=' character...";

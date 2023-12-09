@@ -11,7 +11,7 @@ class Token {
     friend class Lexer;
     public:
 		enum TokenKind : unsigned short {
-			eoi,            // ;
+			semi_colon,            // ;
 			unknown,        // unknown token
 			ident,          // identifier like a, b, c, d, etc.
 			number,         // number like 1, 2, 3, 4, etc.

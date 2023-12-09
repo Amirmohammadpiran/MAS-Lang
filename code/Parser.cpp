@@ -71,14 +71,10 @@ Base* Parser::parseS()
 			return new Base(statements);
 		}
 
-
 		}
 	}
 	return new Base(statements);
-
-
 }
-
 
 /*
 	parses declaration statements like int a, b, c;
@@ -105,7 +101,7 @@ llvm::SmallVector<DecStatement*> Parser::parseDefine()
 
 
 
-	if (Tok.is(Token::eoi))
+	if (Tok.is(Token::semi_colon))
 	{
 		bool SeenTokenValue = true;
 		for (int i = 0; i < variables.size(); i++)
@@ -151,7 +147,7 @@ llvm::SmallVector<DecStatement*> Parser::parseDefine()
 			values.pop_back();
 		}
 
-		if (Tok.is(Token::eoi))
+		if (Tok.is(Token::semi_colon))
 		{
 			advance();
 			return assignments;
@@ -303,7 +299,7 @@ AssignStatement* Parser::parseAssign()
 		Error::AssignmentEqualNotFound();
 	}
 
-	if (!Tok.is(Token::eoi))
+	if (!Tok.is(Token::semi_colon))
 	{
 		Error::SemiColonNotFound();
 	}
@@ -577,6 +573,58 @@ ElseStatement* Parser::parseElse()
 	{
 		Error::BeginExpectedAfterColon();
 	}
+}
+
+Base* Parser::parseStatement()
+{
+	llvm::SmallVector<Statement*> statements;
+	while (!Tok.is(Token::KW_end))
+	{
+		switch (Tok.getKind())
+		{
+		case Token::ident:
+		{
+			AssignStatement* state = parseAssign();
+
+			statements.push_back(state);
+			break;
+		}
+		case Token::KW_int:
+		{
+			Error::DefineInsideScope();
+		}
+		case Token::KW_if:
+		{
+			IfStatement* statement = parseIf();
+			statements.push_back(statement);
+			while (Tok.is(Token::KW_elif))
+			{
+				ElifStatement* statement = parseElif();
+				statements.push_back(statement);
+			}
+			if (Tok.is(Token::KW_else))
+			{
+				ElseStatement* statement = parseElse();
+				statements.push_back(statement);
+			}
+			break;
+
+		}
+		case Token::KW_loopc:
+		{
+			LoopStatement* statement = parseLoop();
+			statements.push_back(statement);
+			break;
+		}
+
+		default:
+		{
+			return new Base(statements);
+		}
+
+		}
+	}
+	return new Base(statements);
 }
 
 Base* Parser::parse()

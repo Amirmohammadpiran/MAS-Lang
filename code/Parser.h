@@ -45,6 +45,7 @@ class Parser {
 
 public:
 	Base* parseS();
+	Base* parseStatement();
 	llvm::SmallVector<DecStatement*> parseDefine();
 	Expression* parseExpr();
 	Expression* parseTerm();

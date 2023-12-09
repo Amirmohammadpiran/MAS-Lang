@@ -155,7 +155,7 @@ void Lexer::next(Token& token) {
 				CASE('^', Token::power);
 				CASE('>', Token::greater);
 				CASE('<', Token::less);
-				CASE(';', Token::eoi);
+				CASE(';', Token::semi_colon);
 				CASE('%', Token::mod);
 
 #undef CASE
