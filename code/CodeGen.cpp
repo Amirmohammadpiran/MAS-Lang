@@ -22,6 +22,9 @@ namespace
         Value* V;
         StringMap<AllocaInst*> nameMap;
 
+        llvm::FunctionType* MainFty;
+        llvm::Function* MainFn;
+
     public:
         // Constructor for the visitor class.
         ToIRVisitor(Module* M) : M(M), Builder(M->getContext())
@@ -38,8 +41,8 @@ namespace
         void run(AST* Tree)
         {
             // Create the main function with the appropriate function type.
-            FunctionType* MainFty = FunctionType::get(Int32Ty, { Int32Ty, Int8PtrPtrTy }, false);
-            Function* MainFn = Function::Create(MainFty, GlobalValue::ExternalLinkage, "main", M);
+            MainFty = FunctionType::get(Int32Ty, { Int32Ty, Int8PtrPtrTy }, false);
+            MainFn = Function::Create(MainFty, GlobalValue::ExternalLinkage, "main", M);
 
             // Create a basic block for the entry point of the main function.
             BasicBlock* BB = BasicBlock::Create(M->getContext(), "entry", MainFn);
@@ -51,6 +54,7 @@ namespace
             // Create a return instruction at the end of the main function.
             Builder.CreateRet(Int32Zero);
         }
+
 
         virtual void visit(Base& Node) override
         {
@@ -67,6 +71,22 @@ namespace
                 DecStatement* declaration = (DecStatement*)&Node;
                 declaration->accept(*this);
             }
+            else if (Node.getKind() == Statement::StateMentType::Assignment)
+            {
+                AssignStatement* declaration = (AssignStatement*)&Node;
+                declaration->accept(*this);
+            }
+            else if (Node.getKind() == Statement::StateMentType::If)
+            {
+                IfStatement* declaration = (IfStatement*)&Node;
+                declaration->accept(*this);
+            }
+            else if (Node.getKind() == Statement::StateMentType::Loop)
+            {
+                WhileStatement* declaration = (WhileStatement*)&Node;
+                declaration->accept(*this);
+            }
+            
         }
 
         virtual void visit(Expression& Node) override
@@ -80,6 +100,41 @@ namespace
                
                 int intval = Node.getNumber();
                 V = ConstantInt::get(Int32Ty, intval, true);
+            }
+        }
+
+
+        virtual void visit(BooleanOp& Node) override
+        {
+            // Visit the left-hand side of the binary operation and get its value.
+            Node.getLeft()->accept(*this);
+            Value* Left = V;
+
+            // Visit the right-hand side of the binary operation and get its value.
+            Node.getRight()->accept(*this);
+            Value* Right = V;
+
+            // Perform the boolean operation based on the operator type and create the corresponding instruction.
+            switch (Node.getOperator())
+            {
+            case BooleanOp::Equal:
+                V = Builder.CreateICmpEQ(Left, Right);
+                break;
+            case BooleanOp::Less:
+                V = Builder.CreateICmpSLT(Left, Right);
+                break;
+            case BooleanOp::LessEqual:
+                V = Builder.CreateICmpSLE(Left, Right);
+                break;
+            case BooleanOp::Greater:
+                V = Builder.CreateICmpSGT(Left, Right);
+                break;
+            case BooleanOp::GreaterEqual:
+                V = Builder.CreateICmpSGE(Left, Right);
+            case BooleanOp::And:
+                V = Builder.CreateAnd(Left, Right);
+            case BooleanOp::Or:
+                V = Builder.CreateOr(Left, Right);
             }
         }
 
@@ -162,12 +217,51 @@ namespace
 
         }
 
-        virtual void visit(BooleanOp& Node) override
+        virtual void visit(ControlStatement& Node) override
         {
+
+
+
 
         }
 
+        virtual void visit(WhileStatement& Node) override
+        {
 
+            llvm::BasicBlock* WhileCondBB = llvm::BasicBlock::Create(M->getContext(), "loop.cond", MainFn);
+            // The basic block for the while body.
+            llvm::BasicBlock* WhileBodyBB = llvm::BasicBlock::Create(M->getContext(), "loop.body", MainFn);
+            // The basic block after the while statement.
+            llvm::BasicBlock* AfterWhileBB = llvm::BasicBlock::Create(M->getContext(), "after.loop", MainFn);
+
+            // Branch to the condition block.
+            Builder.CreateBr(WhileCondBB);
+
+            // Set the insertion point to the condition block.
+            Builder.SetInsertPoint(WhileCondBB);
+
+            // Visit the condition expression and create the conditional branch.
+            Node.getCondition()->accept(*this);
+            Value* Cond = V;
+            Builder.CreateCondBr(Cond, WhileBodyBB, AfterWhileBB);
+
+            // Set the insertion point to the body block.
+            Builder.SetInsertPoint(WhileBodyBB);
+
+            llvm::SmallVector<Statement* > stmts = Node.getStatements();
+            for (auto I = stmts.begin(), E = stmts.end(); I != E; ++I)
+            {
+                (*I)->accept(*this);
+            }
+
+            // Branch back to the condition block.
+            Builder.CreateBr(WhileCondBB);
+
+            // Set the insertion point to the block after the while loop.
+            Builder.SetInsertPoint(AfterWhileBB);
+
+
+        }
 
 
 

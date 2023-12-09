@@ -44,14 +44,14 @@ Base* Parser::parseS()
 		}
 		case Token::KW_if:
 		{
-			ControlStatement* statement = parseIf();
+			IfStatement* statement = parseIf();
 			statements.push_back(statement);
 			break;
 
 		}
 		case Token::KW_loopc:
 		{
-			ControlStatement* statement = parseLoop();
+			WhileStatement* statement = parseLoop();
 			statements.push_back(statement);
 			break;
 		}
@@ -322,7 +322,7 @@ Expression* Parser::parseVar()
 }
 
 
-ControlStatement* Parser::parseLoop()
+WhileStatement* Parser::parseLoop()
 {
 	advance();			// pass loop identifier
 
@@ -346,7 +346,7 @@ ControlStatement* Parser::parseLoop()
 		if (!consume(Token::end))
 		{
 
-			return new ControlStatement(condition, AllStates->getStatements(), Statement::StateMentType::Loop);
+			return new WhileStatement(condition, AllStates->getStatements(), Statement::StateMentType::Loop);
 		}
 		else
 		{
@@ -462,7 +462,7 @@ Expression* Parser::parseSubCondition()
 	parse if statement and return the control statement
 	associated with it.
 */
-ControlStatement* Parser::parseIf()
+IfStatement* Parser::parseIf()
 {
 	advance();			// pass if identifier
 
@@ -486,7 +486,7 @@ ControlStatement* Parser::parseIf()
 		if (!consume(Token::end))
 		{
 	
-			return new ControlStatement(condition, AllStates->getStatements(), Statement::StateMentType::If);
+			return new IfStatement(condition, AllStates->getStatements(), Statement::StateMentType::If);
 		}
 		else
 		{

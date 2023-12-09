@@ -13,6 +13,8 @@ class BinaryOp; // binary operation of numbers and identifiers
 class AssignStatement; // assignment statement like a = 3;
 class DecStatement; // declaration statement like int a;
 class BooleanOp; // boolean operation like 3 > 6*2;
+class WhileStatement;
+class ControlStatement;
 
 class ASTVisitor
 {
@@ -26,6 +28,8 @@ public:
 	virtual void visit(DecStatement&) = 0;
 	virtual void visit(AssignStatement&) = 0;
 	virtual void visit(BooleanOp&) = 0;
+	virtual void visit(ControlStatement&) = 0;
+	virtual void visit(WhileStatement&) = 0;
 };
 
 
@@ -167,15 +171,41 @@ public:
 	}
 };
 
-// if statement
-class ControlStatement : public Statement {
+class WhileStatement : public Statement {
 
 private:
 	Expression* Condition;
 	llvm::SmallVector<Statement*> Statements;
 
 public:
-	ControlStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type): Condition(condition), Statements(statements), Statement(type) { }
+	WhileStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type) : Condition(condition), Statements(statements), Statement(type) { }
+
+	Expression* getCondition()
+	{
+		return Condition;
+	}
+
+	llvm::SmallVector<Statement*> getStatements()
+	{
+		return Statements;
+	}
+
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
+};
+
+
+// if statement
+class IfStatement : public Statement {
+
+private:
+	Expression* Condition;
+	llvm::SmallVector<Statement*> Statements;
+
+public:
+	IfStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type): Condition(condition), Statements(statements), Statement(type) { }
 
 	Expression* getCondition()
 	{
