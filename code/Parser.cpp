@@ -46,12 +46,22 @@ Base* Parser::parseS()
 		{
 			IfStatement* statement = parseIf();
 			statements.push_back(statement);
+			while (Tok.is(Token::KW_elif))
+			{
+				ElifStatement* statement = parseElif();
+				statements.push_back(statement);
+			}
+			if (Tok.is(Token::KW_else))
+			{
+				ElseStatement* statement = parseElse();
+				statements.push_back(statement);
+			}
 			break;
 
 		}
 		case Token::KW_loopc:
 		{
-			WhileStatement* statement = parseLoop();
+			LoopStatement* statement = parseLoop();
 			statements.push_back(statement);
 			break;
 		}
@@ -322,7 +332,7 @@ Expression* Parser::parseVar()
 }
 
 
-WhileStatement* Parser::parseLoop()
+LoopStatement* Parser::parseLoop()
 {
 	advance();			// pass loop identifier
 
@@ -337,16 +347,16 @@ WhileStatement* Parser::parseLoop()
 
 	advance();
 
-	if (Tok.is(Token::begin))
+	if (Tok.is(Token::KW_begin))
 	{
 		advance();
 
 		Base* AllStates = parseS();
 
-		if (!consume(Token::end))
+		if (!consume(Token::KW_end))
 		{
 
-			return new WhileStatement(condition, AllStates->getStatements(), Statement::StateMentType::Loop);
+			return new LoopStatement(condition, AllStates->getStatements(), Statement::StateMentType::Loop);
 		}
 		else
 		{
@@ -477,13 +487,13 @@ IfStatement* Parser::parseIf()
 
 	advance();
 
-	if (Tok.is(Token::begin))
+	if (Tok.is(Token::KW_begin))
 	{
 		advance();
 
 		Base* AllStates = parseS();
 
-		if (!consume(Token::end))
+		if (!consume(Token::KW_end))
 		{
 	
 			return new IfStatement(condition, AllStates->getStatements(), Statement::StateMentType::If);
@@ -497,10 +507,77 @@ IfStatement* Parser::parseIf()
 	{
 		Error::BeginExpectedAfterColon();
 	}
-
-
 }
 
+ElifStatement* Parser::parseElif()
+{
+	advance();			// pass if identifier
+
+	Expression* condition = parseCondition();
+
+	
+
+	if (!Tok.is(Token::colon))
+	{
+		Error::ColonExpectedAfterCondition();
+	}
+
+	advance();
+
+	if (Tok.is(Token::KW_begin))
+	{
+		advance();
+
+		Base* AllStates = parseS();
+
+		if (!consume(Token::KW_end))
+		{
+	
+			return new ElifStatement(condition, AllStates->getStatements(), Statement::StateMentType::Elif);
+		}
+		else
+		{
+			Error::EndNotSeenForIf();
+		}
+	}
+	else
+	{
+		Error::BeginExpectedAfterColon();
+	}
+}
+
+ElseStatement* Parser::parseElse()
+{
+	advance();			// pass if identifier
+
+	if (!Tok.is(Token::colon))
+	{
+		Error::ColonExpectedAfterCondition();
+	}
+
+	advance();
+
+	if (Tok.is(Token::KW_begin))
+	{
+		advance();
+
+		Base* AllStates = parseS();
+
+		if (!consume(Token::KW_end))
+		{
+	
+			return new ElseStatement(AllStates->getStatements(), Statement::StateMentType::Else);
+		}
+		else
+		{
+			Error::EndNotSeenForIf();
+		}
+	}
+	else
+	{
+		Error::BeginExpectedAfterColon();
+	}
+}
 
 Base* Parser::parse()
 {

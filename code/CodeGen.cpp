@@ -81,9 +81,19 @@ namespace
                 IfStatement* declaration = (IfStatement*)&Node;
                 declaration->accept(*this);
             }
+            else if (Node.getKind() == Statement::StateMentType::Elif)
+            {
+                ElifStatement* declaration = (ElifStatement*)&Node;
+                declaration->accept(*this);
+            }
+            else if (Node.getKind() == Statement::StateMentType::Else)
+            {
+                ElseStatement* declaration = (ElseStatement*)&Node;
+                declaration->accept(*this);
+            }
             else if (Node.getKind() == Statement::StateMentType::Loop)
             {
-                WhileStatement* declaration = (WhileStatement*)&Node;
+                LoopStatement* declaration = (LoopStatement*)&Node;
                 declaration->accept(*this);
             }
             
@@ -225,7 +235,23 @@ namespace
 
         }
 
-        virtual void visit(WhileStatement& Node) override
+        virtual void visit(ElifStatement& Node) override
+        {
+
+
+
+
+        }
+
+        virtual void visit(ElseStatement& Node) override
+        {
+
+
+
+
+        }
+
+        virtual void visit(LoopStatement& Node) override
         {
 
             llvm::BasicBlock* WhileCondBB = llvm::BasicBlock::Create(M->getContext(), "loop.cond", MainFn);

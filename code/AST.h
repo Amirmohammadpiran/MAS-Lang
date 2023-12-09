@@ -13,8 +13,10 @@ class BinaryOp; // binary operation of numbers and identifiers
 class AssignStatement; // assignment statement like a = 3;
 class DecStatement; // declaration statement like int a;
 class BooleanOp; // boolean operation like 3 > 6*2;
-class WhileStatement;
+class LoopStatement;
 class IfStatement;
+class ElifStatement;
+class ElseStatement;
 
 class ASTVisitor
 {
@@ -29,7 +31,9 @@ public:
 	virtual void visit(AssignStatement&) = 0;
 	virtual void visit(BooleanOp&) = 0;
 	virtual void visit(IfStatement&) = 0;
-	virtual void visit(WhileStatement&) = 0;
+	virtual void visit(ElifStatement&) = 0;
+	virtual void visit(ElseStatement&) = 0;
+	virtual void visit(LoopStatement&) = 0;
 };
 
 
@@ -150,6 +154,8 @@ public:
 		Declaration,
 		Assignment,
 		If,
+		Elif,
+		Else,
 		Loop
 	};
 
@@ -171,14 +177,14 @@ public:
 	}
 };
 
-class WhileStatement : public Statement {
+class LoopStatement : public Statement {
 
 private:
 	Expression* Condition;
 	llvm::SmallVector<Statement*> Statements;
 
 public:
-	WhileStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type) : Condition(condition), Statements(statements), Statement(type) { }
+	LoopStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type) : Condition(condition), Statements(statements), Statement(type) { }
 
 	Expression* getCondition()
 	{
@@ -211,6 +217,50 @@ public:
 	{
 		return Condition;
 	}
+
+	llvm::SmallVector<Statement*> getStatements()
+	{
+		return Statements;
+	}
+
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
+};
+
+class ElifStatement : public Statement {
+
+private:
+	Expression* Condition;
+	llvm::SmallVector<Statement*> Statements;
+
+public:
+	ElifStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type): Condition(condition), Statements(statements), Statement(type) { }
+
+	Expression* getCondition()
+	{
+		return Condition;
+	}
+
+	llvm::SmallVector<Statement*> getStatements()
+	{
+		return Statements;
+	}
+
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
+};
+
+class ElseStatement : public Statement {
+
+private:
+	llvm::SmallVector<Statement*> Statements;
+
+public:
+	ElseStatement(llvm::SmallVector<Statement*> statements, StateMentType type): Statements(statements), Statement(type) { }
 
 	llvm::SmallVector<Statement*> getStatements()
 	{

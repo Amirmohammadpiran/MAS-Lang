@@ -49,8 +49,8 @@ class Token {
 			KW_false,       // false
 			eof,            // end of file
 			mod,            // %
-			begin,			// begin
-			end				// end
+			KW_begin,		// begin
+			KW_end			// end
 		};
 
 

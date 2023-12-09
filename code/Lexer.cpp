@@ -77,11 +77,11 @@ void Lexer::next(Token& token) {
 		}
 		else if (Context == "begin")
 		{
-			kind = Token::begin;
+			kind = Token::KW_begin;
 		}
 		else if (Context == "end")
 		{
-			kind = Token::end;
+			kind = Token::KW_end;
 		}
 		else {
 			kind = Token::ident;

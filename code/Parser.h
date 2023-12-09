@@ -51,8 +51,10 @@ public:
 	Expression* parsePower();
 	Expression* parseFactor();
 	AssignStatement* parseAssign();
-	WhileStatement* parseLoop();
+	LoopStatement* parseLoop();
 	IfStatement* parseIf();
+	ElifStatement* parseElif();
+	ElseStatement* parseElse();
 	Expression* parseCondition();
 	Expression* parseSubCondition();
 	Expression* parseVar();
