@@ -5,6 +5,14 @@
 #endif
 
 
+/*
+	parsing a number of statements. it is called two times.
+	one at the start of program to get all the statements, 
+	the other inside control and loop statetments because they 
+	have a number of statements inside the bodies. it returns
+	the base class that consists of all the statements inside the
+	scope body
+*/
 Base* Parser::parseS()
 {
 	llvm::SmallVector<Statement*> statements;
@@ -36,14 +44,14 @@ Base* Parser::parseS()
 		}
 		case Token::KW_if:
 		{
-			ControlStatement* statement = parseIf();
+			IfStatement* statement = parseIf();
 			statements.push_back(statement);
 			break;
 
 		}
 		case Token::KW_loopc:
 		{
-			ControlStatement* statement = parseLoop();
+			WhileStatement* statement = parseLoop();
 			statements.push_back(statement);
 			break;
 		}
@@ -61,6 +69,10 @@ Base* Parser::parseS()
 
 }
 
+
+/*
+	parses declaration statements like int a, b, c;
+*/
 llvm::SmallVector<DecStatement*> Parser::parseDefine()
 {
 	llvm::SmallVector<DecStatement*> assignments;
@@ -144,6 +156,9 @@ llvm::SmallVector<DecStatement*> Parser::parseDefine()
 }
 
 
+/*
+	parses the expression
+*/
 Expression* Parser::parseExpr()
 {
 	Expression* Left = parseTerm();
@@ -159,6 +174,9 @@ Expression* Parser::parseExpr()
 }
 
 
+/*
+	parses the term
+*/
 Expression* Parser::parseTerm()
 {
 	Expression* Left = parsePower();
@@ -174,6 +192,9 @@ Expression* Parser::parseTerm()
 }
 
 
+/*
+	parses the power inside expression.
+*/
 Expression* Parser::parsePower()
 {
 	Expression* Left = parseFactor();
@@ -188,6 +209,9 @@ Expression* Parser::parsePower()
 	return Left;
 }
 
+/*
+	parses factor
+*/
 Expression* Parser::parseFactor()
 {
 	Expression* Res = nullptr;
@@ -224,6 +248,9 @@ Expression* Parser::parseFactor()
 }
 
 
+/*
+	parse assignment like a = 3;
+*/
 AssignStatement* Parser::parseAssign()
 {
 	Expression* variable;
@@ -277,6 +304,11 @@ AssignStatement* Parser::parseAssign()
 }
 
 
+/*
+	parses variable name, it returns an expression
+	with type Identifier with variable name inside it.
+	in order to get it you need to call getValue() on Expression object
+*/
 Expression* Parser::parseVar()
 {
 	if (!Tok.is(Token::ident))
@@ -290,7 +322,7 @@ Expression* Parser::parseVar()
 }
 
 
-ControlStatement* Parser::parseLoop()
+WhileStatement* Parser::parseLoop()
 {
 	advance();			// pass loop identifier
 
@@ -314,7 +346,7 @@ ControlStatement* Parser::parseLoop()
 		if (!consume(Token::end))
 		{
 
-			return new ControlStatement(condition, AllStates->getStatements(), Statement::StateMentType::Loop);
+			return new WhileStatement(condition, AllStates->getStatements(), Statement::StateMentType::Loop);
 		}
 		else
 		{
@@ -327,6 +359,9 @@ ControlStatement* Parser::parseLoop()
 	}
 }
 
+/*
+	parses condition like 3 > 5+1 and true
+*/
 Expression* Parser::parseCondition()
 {
 	Expression* lcondition;
@@ -350,6 +385,11 @@ Expression* Parser::parseCondition()
 	}
 }
 
+
+/*
+	parses a single subcondition like 3 > 5+1
+	it does not deal with and, or
+*/
 Expression* Parser::parseSubCondition()
 {
 
@@ -417,7 +457,12 @@ Expression* Parser::parseSubCondition()
 	}
 }
 
-ControlStatement* Parser::parseIf()
+
+/*
+	parse if statement and return the control statement
+	associated with it.
+*/
+IfStatement* Parser::parseIf()
 {
 	advance();			// pass if identifier
 
@@ -441,7 +486,7 @@ ControlStatement* Parser::parseIf()
 		if (!consume(Token::end))
 		{
 	
-			return new ControlStatement(condition, AllStates->getStatements(), Statement::StateMentType::If);
+			return new IfStatement(condition, AllStates->getStatements(), Statement::StateMentType::If);
 		}
 		else
 		{

@@ -4,6 +4,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include <iostream>
 #include "AST.h"
+#include "CodeGen.h"
 #include "Parser.h"
 
 using namespace std;
@@ -23,13 +24,16 @@ int main(int argc, const char** argv)
 
 	Token nextToken;
 
-	Lexer lexer("loopc a > 3: begin a = 5; end");
+	Lexer lexer("int a=1;loopc 3 > a: begin int x = 3; end ");
 
 
 	Parser Parser(lexer);
 	AST* Tree = Parser.parse();
 
 
+	
+	CodeGen CodeGenerator;
+	CodeGenerator.compile(Tree);
 
 
 	return 0;

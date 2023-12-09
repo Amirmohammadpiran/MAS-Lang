@@ -9,7 +9,12 @@ class AST; // Abstract Syntax Tree
 class Expression; // top level expression that is evaluated to boolean, int or variable name at last
 class Base; // top level program
 class Statement; // top level statement
-class BinaryOp;
+class BinaryOp; // binary operation of numbers and identifiers
+class AssignStatement; // assignment statement like a = 3;
+class DecStatement; // declaration statement like int a;
+class BooleanOp; // boolean operation like 3 > 6*2;
+class WhileStatement;
+class IfStatement;
 
 class ASTVisitor
 {
@@ -20,6 +25,11 @@ public:
 	virtual void visit(Base&) = 0;
 	virtual void visit(Statement&) = 0;
 	virtual void visit(BinaryOp&) = 0;
+	virtual void visit(DecStatement&) = 0;
+	virtual void visit(AssignStatement&) = 0;
+	virtual void visit(BooleanOp&) = 0;
+	virtual void visit(IfStatement&) = 0;
+	virtual void visit(WhileStatement&) = 0;
 };
 
 
@@ -106,6 +116,7 @@ public:
 		return false;
 	}
 
+	// returns identifier
 	llvm::StringRef getValue() {
 		return Value;
 	}
@@ -116,6 +127,14 @@ public:
 
 	bool getBoolean() {
 		return BoolVal;
+	}
+
+
+	// returns the kind of expression. can be identifier,
+	// number, or an operation
+	ExpressionType getKind()
+	{
+		return Type;
 	}
 
 	virtual void accept(ASTVisitor& V) override
@@ -136,7 +155,15 @@ public:
 
 private:
 	StateMentType Type;
+
 public:
+
+	StateMentType getKind()
+	{
+		return Type;
+	}
+
+
 	Statement(StateMentType type) : Type(type) {}
 	virtual void accept(ASTVisitor& V) override
 	{
@@ -144,15 +171,14 @@ public:
 	}
 };
 
-// if statement
-class ControlStatement : public Statement {
+class WhileStatement : public Statement {
 
 private:
 	Expression* Condition;
 	llvm::SmallVector<Statement*> Statements;
 
 public:
-	ControlStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type): Condition(condition), Statements(statements), Statement(type) { }
+	WhileStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type) : Condition(condition), Statements(statements), Statement(type) { }
 
 	Expression* getCondition()
 	{
@@ -171,6 +197,35 @@ public:
 };
 
 
+// if statement
+class IfStatement : public Statement {
+
+private:
+	Expression* Condition;
+	llvm::SmallVector<Statement*> Statements;
+
+public:
+	IfStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type): Condition(condition), Statements(statements), Statement(type) { }
+
+	Expression* getCondition()
+	{
+		return Condition;
+	}
+
+	llvm::SmallVector<Statement*> getStatements()
+	{
+		return Statements;
+	}
+
+	virtual void accept(ASTVisitor& V) override
+	{
+		V.visit(*this);
+	}
+};
+
+/*
+	Declaration statement like int x; or int a = 3;
+*/
 class DecStatement : public Statement {
 private:
 
@@ -196,8 +251,8 @@ public:
 	}
 };
 
-// assignment statement. this can have declaration or
-// assignment inside it. forexample x=56; or int x=23+25;
+// assignment statement. forexample x=56;
+// right hand side is an expression
 class AssignStatement : public Statement {
 private:
 
@@ -222,7 +277,7 @@ public:
 };
 
 // Binary Operation for computation of numbers
-// used in the syntax tree stage
+// used in the syntax tree stage like 3*(56+a*2)/2
 class BinaryOp : public Expression
 {
 public:
@@ -256,6 +311,13 @@ public:
 	}
 };
 
+
+/*
+	a boolean operation of form 3 > 5+1 that consists
+	of 2 lefthand and righthand expressions. these expressions
+	can be number, identifier or of type binaryop.
+	it has an operator that can be +, -, *, /, % or ^
+*/
 class BooleanOp : public Expression
 {
 public:
