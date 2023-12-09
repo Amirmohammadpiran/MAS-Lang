@@ -8,50 +8,48 @@
 class Lexer;
 
 class Token {
-	friend class Lexer;
-public:
-	enum TokenKind : unsigned short {
-		eoi,            // ;
-		unknown,        // unknown token
-		ident,          // identifier like a, b, c, d, etc.
-		number,         // number like 1, 2, 3, 4, etc.
-		comma,          // ,
-		colon,          // :
-		plus,           // +
-		minus,          // -
-		star,           // *
-		slash,          // /
-		power,          // ^
-		l_paren,        // (
-		r_paren,        // )
-		plus_equal,     // +=
-		minus_equal,    // -=
-		star_equal,     // *=
-		slash_equal,    // /=
-		equal,          // =
-		equal_equal,    // ==
-		not_equal,      // !=
-		less,           // <
-		less_equal,     // <=
-		greater,        // >
-		greater_equal,  // >=
-		space,          // space
-		new_line,       // \n
-		KW_int,         // int
-		KW_if,          // if
-		KW_elif,        // elif
-		KW_else,        // else
-		KW_else_colon,  // else:
-		KW_loopc,       // loopc
-		KW_and,         // and
-		KW_or,          // or
-		KW_true,        // true
-		KW_false,       // false
-		eof,            // end of file
-		mod,            // %
-		begin,			// begin
-		end				// end
-	};
+    friend class Lexer;
+    public:
+        enum TokenKind : unsigned short {
+            eoi,            // ;
+            unknown,        // unknown token
+            ident,          // identifier like a, b, c, d, etc.
+            number,         // number like 1, 2, 3, 4, etc.
+            comma,          // ,
+            colon,          // :
+            plus,           // +
+            minus,          // -
+            star,           // *
+            slash,          // /
+            power,          // ^
+            l_paren,        // (
+            r_paren,        // )
+            semi_colon,     // ;
+            plus_equal,     // +=
+            minus_equal,    // -=
+            star_equal,     // *=
+            slash_equal,    // /=
+            equal,          // =
+            equal_equal,    // ==
+            not_equal,      // !=
+            less,           // <
+            less_equal,     // <=
+            greater,        // >
+            greater_equal,  // >=
+            space,          // space
+            new_line,       // \n
+            KW_int,         // int
+            KW_if,          // if
+            KW_elif,        // elif
+            KW_else,        // else
+            KW_else_colon,  // else:
+            KW_loopc,       // loopc
+            KW_and,         // and
+            KW_or,          // or
+            KW_true,        // true
+            KW_false,       // false
+        };
+
 
 private:
 	TokenKind Kind;         // <type of token,>
