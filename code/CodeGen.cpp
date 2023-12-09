@@ -217,7 +217,7 @@ namespace
 
         }
 
-        virtual void visit(ControlStatement& Node) override
+        virtual void visit(IfStatement& Node) override
         {
 
 
@@ -276,6 +276,7 @@ void CodeGen::compile(AST* Tree)
 
     // Create an instance of the ToIRVisitor and run it on the AST to generate LLVM IR.
     ToIRVisitor ToIRn(M);
+
     ToIRn.run(Tree);
 
     // Print the generated module to the standard output.

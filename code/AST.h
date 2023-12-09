@@ -14,7 +14,7 @@ class AssignStatement; // assignment statement like a = 3;
 class DecStatement; // declaration statement like int a;
 class BooleanOp; // boolean operation like 3 > 6*2;
 class WhileStatement;
-class ControlStatement;
+class IfStatement;
 
 class ASTVisitor
 {
@@ -28,7 +28,7 @@ public:
 	virtual void visit(DecStatement&) = 0;
 	virtual void visit(AssignStatement&) = 0;
 	virtual void visit(BooleanOp&) = 0;
-	virtual void visit(ControlStatement&) = 0;
+	virtual void visit(IfStatement&) = 0;
 	virtual void visit(WhileStatement&) = 0;
 };
 
