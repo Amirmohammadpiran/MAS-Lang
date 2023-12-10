@@ -124,6 +124,10 @@ void Lexer::next(Token& token) {
 			formToken(token, BufferPtr + 2, Token::slash_equal);
 		}
 
+		else if (*BufferPtr == '%' && *(BufferPtr + 1) == '=') {      // %=
+			formToken(token, BufferPtr + 2, Token::mod_equal);
+		}
+
 		else if (*BufferPtr == '!' && *(BufferPtr + 1) == '=') {      // !=
 			formToken(token, BufferPtr + 2, Token::not_equal);
 		}

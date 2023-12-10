@@ -6,7 +6,7 @@ Define -> "int" Variables ";" |
 
 Variables -> Id "," Variables | Id
 
-AssignOp -> "+=" | "-=" | "*=" | "/=" | "="
+AssignOp -> "+=" | "-=" | "*=" | "/=" | "%=" | "="
 
 Values -> Expr "," Values | Expr
 

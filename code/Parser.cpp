@@ -293,6 +293,12 @@ AssignStatement* Parser::parseAssign()
 		value = parseExpr();
 		value = new BinaryOp(BinaryOp::Div, variable, value);
 	}
+	else if (Tok.is(Token::mod_equal))
+	{
+		advance();
+		value = parseExpr();
+		value = new BinaryOp(BinaryOp::Mod, variable, value);
+	}
 	else if (Tok.is(Token::equal))
 	{
 		advance(); // pass equal

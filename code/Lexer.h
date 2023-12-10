@@ -28,6 +28,7 @@ class Token {
 			minus_equal,    // -=
 			star_equal,     // *=
 			slash_equal,    // /=
+			mod_equal,		// %=
 			equal,          // =
 			equal_equal,    // ==
 			not_equal,      // !=
