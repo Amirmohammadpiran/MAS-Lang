@@ -188,7 +188,7 @@ namespace
         {
             Value* val = nullptr;
 
-            if (Node.getRValue()->getNumber() != 0)
+            if (Node.getRValue()->getKind() == Expression::ExpressionType::BinaryOpType || Node.getRValue()->isNumber())
             {
                 // If there is an expression provided, visit it and get its value.
                 Node.getRValue()->accept(*this);
