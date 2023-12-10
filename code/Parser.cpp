@@ -140,11 +140,15 @@ llvm::SmallVector<DecStatement*> Parser::parseDefine()
 	}
 	else
 	{
-		while (values.size() != 0)
+		while (variables.size() != 0)
 		{
-			assignments.push_back(new DecStatement(variables.back(), values.size() > 0 ? values.back() : new Expression(0)));
-			variables.pop_back();
-			values.pop_back();
+			assignments.push_back(new DecStatement(variables.front(), values.size() > 0 ? values.front() : new Expression(0)));
+			variables.erase(variables.begin());
+			
+			if (values.size() > 0)
+			{
+				values.erase(values.begin());
+			}
 		}
 
 		if (Tok.is(Token::semi_colon))
