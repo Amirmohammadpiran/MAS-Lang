@@ -7,10 +7,16 @@ namespace {
         llvm::StringSet<> Scope;
         bool HasError;
 
-        enum ErrorType { Twice, Not };
+        enum ErrorType { Twice, Not, DivByZero };
 
         void error(ErrorType ET, llvm::StringRef V) {
-            llvm::errs() << "Variable " << V << " is " << (ET == Twice ? "already" : "not") << " declared!\n";
+            if (ET == ErrorType::DivByZero) {
+                llvm::errs() << "Division by zero is not allowed." << "\n";
+            }
+            else
+            {
+                llvm::errs() << "Variable " << V << " is " << (ET == Twice ? "already" : "not") << " declared!\n";
+            }
             HasError = true;
         }
 
@@ -24,6 +30,11 @@ namespace {
                 if (Scope.find(Node.getValue()) == Scope.end())
                     error(Not, Node.getValue());
             }
+            else if (Node.getKind() == Expression::ExpressionType::BinaryOpType)
+            {
+                BinaryOp* declaration = (BinaryOp*)&Node;
+                declaration->accept(*this);
+            }
         };
 
         virtual void visit(BinaryOp& Node) override {
@@ -35,6 +46,14 @@ namespace {
                 Node.getRight()->accept(*this);
             else
                 HasError = true;
+            
+            if (Node.getOperator() == BinaryOp::Operator::Div)
+            {
+                Expression* right = (Expression*)Node.getRight();
+                if (right->isNumber() && right->getNumber() == 0) {
+                    error(DivByZero, ((Expression*)Node.getLeft())->getValue());
+                }
+            }
         };
 
         virtual void visit(DecStatement& Node) override {
@@ -44,19 +63,24 @@ namespace {
             if (!Scope.insert(Node.getLValue()->getValue()).second)
                 error(Twice, Node.getLValue()->getValue());
 
-
+            Expression* declaration = (Expression*)Node.getRValue();
+            declaration->accept(*this);
             
         };
 
         // TODO
         virtual void visit(IfStatement& Node) override {
 
+            Expression* declaration = (Expression*)Node.getCondition();
+            declaration->accept(*this);
 
         };
 
         // TODO
         virtual void visit(ElifStatement& Node) override {
 
+            Expression* declaration = (Expression*)Node.getCondition();
+            declaration->accept(*this);
 
         };
 
@@ -85,6 +109,8 @@ namespace {
             if (!Scope.count(Node.getLValue()->getValue()))
                 error(Not, Node.getLValue()->getValue());
 
+            Expression* declaration = (Expression*)Node.getRValue();
+            declaration->accept(*this);
 
         };
 
