@@ -174,6 +174,9 @@ namespace
             case BinaryOp::Div:
                 V = Builder.CreateSDiv(Left, Right);
                 break;
+            case BinaryOp::Pow:
+                // V = Builder.CreateNSWMul(Left, Right);
+                break;
             case BinaryOp::Mod:
                 Value* division = Builder.CreateSDiv(Left, Right);
                 Value* multiplication = Builder.CreateNSWMul(division, Right);

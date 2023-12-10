@@ -18,6 +18,7 @@ namespace {
                 llvm::errs() << "Variable " << V << " is " << (ET == Twice ? "already" : "not") << " declared!\n";
             }
             HasError = true;
+            exit(3);
         }
 
     public:
