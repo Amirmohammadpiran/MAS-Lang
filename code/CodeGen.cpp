@@ -201,7 +201,16 @@ namespace
                 V = Builder.CreateSDiv(Left, Right);
                 break;
             case BinaryOp::Pow:
-                // V = Builder.CreateNSWMul(Left, Right);
+                if ((Node.getRight())->isNumber())
+                {
+                    int power = (Node.getRight())->getNumber();
+                    Value* result = Left;
+                    for (int i=1; i<power; i++)
+                    {
+                        result = Builder.CreateNSWMul(result, Left);
+                    }
+                    V = result;
+                }
                 break;
             case BinaryOp::Mod:
                 Value* division = Builder.CreateSDiv(Left, Right);
