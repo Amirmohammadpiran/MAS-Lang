@@ -46,16 +46,6 @@ Base* Parser::parseS()
 		{
 			IfStatement* statement = parseIf();
 			statements.push_back(statement);
-			while (Tok.is(Token::KW_elif))
-			{
-				ElifStatement* statement = parseElif();
-				statements.push_back(statement);
-			}
-			if (Tok.is(Token::KW_else))
-			{
-				ElseStatement* statement = parseElse();
-				statements.push_back(statement);
-			}
 			break;
 
 		}
@@ -505,8 +495,25 @@ IfStatement* Parser::parseIf()
 
 		if (!consume(Token::KW_end))
 		{
-	
-			return new IfStatement(condition, AllStates->getStatements(), Statement::StateMentType::If);
+			llvm::SmallVector<ElifStatement*> ElifS;
+			ElseStatement* ElseS;
+			bool hasElif = false;
+			bool hasElse = false;
+
+			while (Tok.is(Token::KW_elif))
+			{
+				ElifStatement* statement = parseElif();
+				ElifS.push_back(statement);
+				hasElif = true;
+			}
+			if (Tok.is(Token::KW_else))
+			{
+				ElseS = parseElse();
+				hasElse = true;
+			}
+			return new IfStatement(condition, AllStates->getStatements(),
+									ElifS, ElseS, hasElif, hasElse,
+									Statement::StateMentType::If);
 		}
 		else
 		{
@@ -611,16 +618,6 @@ Base* Parser::parseStatement()
 		{
 			IfStatement* statement = parseIf();
 			statements.push_back(statement);
-			while (Tok.is(Token::KW_elif))
-			{
-				ElifStatement* statement = parseElif();
-				statements.push_back(statement);
-			}
-			if (Tok.is(Token::KW_else))
-			{
-				ElseStatement* statement = parseElse();
-				statements.push_back(statement);
-			}
 			break;
 
 		}

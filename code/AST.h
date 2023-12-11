@@ -215,18 +215,51 @@ class IfStatement : public Statement {
 private:
 	Expression* Condition;
 	llvm::SmallVector<Statement*> Statements;
+	llvm::SmallVector<ElifStatement*> ElifsStatements;
+	ElseStatement* ElseStatements;
+	bool HasElif;
+	bool HasElse;
 
 public:
-	IfStatement(Expression* condition, llvm::SmallVector<Statement*> statements, StateMentType type): Condition(condition), Statements(statements), Statement(type) { }
+	IfStatement(Expression* condition,
+	 llvm::SmallVector<Statement*> statements,
+	 llvm::SmallVector<ElifStatement*> elifsStatements,
+	 ElseStatement* elseStatement,
+	 bool hasElif, bool hasElse,
+	 StateMentType type): Condition(condition),
+	 Statements(statements),
+	 ElifsStatements(elifsStatements),
+	 ElseStatements(elseStatement),
+	 HasElif(hasElif),
+	 HasElse(hasElse),
+	 Statement(type) { }
 
 	Expression* getCondition()
 	{
 		return Condition;
 	}
 
+	bool hasElif(){
+		return HasElif;
+	}
+
+	bool hasElse(){
+		return HasElse;
+	}
+
+	llvm::SmallVector<ElifStatement*> getElifsStatements()
+	{
+		return ElifsStatements;
+	}
+
 	llvm::SmallVector<Statement*> getStatements()
 	{
 		return Statements;
+	}
+
+	ElseStatement* getElseStatement()
+	{
+		return ElseStatements;
 	}
 
 	virtual void accept(ASTVisitor& V) override
