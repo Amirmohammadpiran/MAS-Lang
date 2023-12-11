@@ -130,6 +130,9 @@ namespace
             case BooleanOp::Equal:
                 V = Builder.CreateICmpEQ(Left, Right);
                 break;
+            case BooleanOp::NotEqual:
+                V = Builder.CreateICmpNE(Left, Right);
+                break;
             case BooleanOp::Less:
                 V = Builder.CreateICmpSLT(Left, Right);
                 break;

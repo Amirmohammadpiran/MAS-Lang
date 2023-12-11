@@ -378,6 +378,7 @@ public:
 		Greater,
 		GreaterEqual,
 		Equal,
+		NotEqual,
 		And,
 		Or
 	};

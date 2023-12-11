@@ -461,6 +461,10 @@ Expression* Parser::parseSubCondition()
 		{
 			Op = BooleanOp::Equal;
 		}
+		else if (Tok.is(Token::not_equal))
+		{
+			Op = BooleanOp::NotEqual;
+		}
 		else
 		{
 			Error::BooleanValueExpected();
