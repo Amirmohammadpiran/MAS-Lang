@@ -387,13 +387,13 @@ Expression* Parser::parseCondition()
 	{
 		advance();
 		Expression* rcondition = parseCondition();
-		return new BooleanOp(BooleanOp::And, lcondition, rcondition);
+		return new Expression(new BooleanOp(BooleanOp::And, lcondition, rcondition));
 	}
 	else if (Tok.is(Token::KW_or))
 	{
 		advance();
 		Expression* rcondition = parseCondition();
-		return new BooleanOp(BooleanOp::Or, lcondition, rcondition);
+		return new Expression(new BooleanOp(BooleanOp::Or, lcondition, rcondition));
 	}
 	else
 	{

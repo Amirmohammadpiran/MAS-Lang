@@ -94,12 +94,14 @@ private:
 	llvm::StringRef Value;
 	int NumberVal;
 	bool BoolVal;
+	BooleanOp* BOVal;
 
 public:
 	Expression() {}
 	Expression(llvm::StringRef value) : Type(ExpressionType::Identifier), Value(value) {} // store string
 	Expression(int value) : Type(ExpressionType::Number), NumberVal(value) {} // store number
 	Expression(bool value) : Type(ExpressionType::Boolean), BoolVal(value) {} // store boolean
+	Expression(BooleanOp* value) : Type(ExpressionType::BooleanOpType), BOVal(value) {} // store boolean
 	Expression(ExpressionType type) : Type(type) {}
 
 	bool isNumber() {
@@ -127,6 +129,10 @@ public:
 
 	int getNumber() {
 		return NumberVal;
+	}
+
+	BooleanOp* getBooleanOp() {
+		return BOVal;
 	}
 
 	bool getBoolean() {
