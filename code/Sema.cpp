@@ -36,6 +36,14 @@ namespace {
                 BinaryOp* declaration = (BinaryOp*)&Node;
                 declaration->accept(*this);
             }
+            else if (Node.getKind() == Expression::ExpressionType::BooleanOpType)
+            {
+                BooleanOp* temp = Node.getBooleanOp();
+
+                (temp->getLeft())->accept(*this);
+
+                (temp->getRight())->accept(*this);
+            }
         };
 
         virtual void visit(BinaryOp& Node) override {
@@ -69,25 +77,38 @@ namespace {
             
         };
 
-        // TODO
         virtual void visit(IfStatement& Node) override {
 
             Expression* declaration = (Expression*)Node.getCondition();
             declaration->accept(*this);
+            llvm::SmallVector<Statement* > stmts = Node.getStatements();
+            for (auto I = stmts.begin(), E = stmts.end(); I != E; ++I)
+            {
+                (*I)->accept(*this);
+            }
 
         };
 
-        // TODO
         virtual void visit(ElifStatement& Node) override {
 
             Expression* declaration = (Expression*)Node.getCondition();
             declaration->accept(*this);
+            llvm::SmallVector<Statement* > stmts = Node.getStatements();
+            for (auto I = stmts.begin(), E = stmts.end(); I != E; ++I)
+            {
+                (*I)->accept(*this);
+            }
 
         };
 
-        // TODO
+
         virtual void visit(ElseStatement& Node) override {
 
+            llvm::SmallVector<Statement* > stmts = Node.getStatements();
+            for (auto I = stmts.begin(), E = stmts.end(); I != E; ++I)
+            {
+                (*I)->accept(*this);
+            }
 
         };
 
