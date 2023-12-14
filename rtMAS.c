@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void gsm_write(int v)
+void mas_write(int v)
 {
     printf("The result is: %d\n", v);
 }
 
-int gsm_read(char *s)
+int mas_read(char *s)
 {
     char buf[64];
     int val;
