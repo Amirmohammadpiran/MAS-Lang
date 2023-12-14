@@ -435,7 +435,7 @@ Expression* Parser::parseSubCondition()
 		{
 			Op = BooleanOp::Less;
 		}
-		else if (Tok.is(Token::less))
+		else if (Tok.is(Token::less_equal))
 		{
 			Op = BooleanOp::LessEqual;
 		}
