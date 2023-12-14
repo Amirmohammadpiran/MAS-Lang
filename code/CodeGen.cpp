@@ -167,10 +167,13 @@ namespace
                 break;
             case BooleanOp::GreaterEqual:
                 V = Builder.CreateICmpSGE(Left, Right);
+                break;
             case BooleanOp::And:
                 V = Builder.CreateAnd(Left, Right);
+                break;
             case BooleanOp::Or:
                 V = Builder.CreateOr(Left, Right);
+                break;
             }
         }
 
