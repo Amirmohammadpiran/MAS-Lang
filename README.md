@@ -70,6 +70,6 @@ $ ./MAS-Lang "int a = 0; a += 1;"
 ```
 
 The results would be the IR code like this:
-[!Screenshot](screenshot.png)
+![Screenshot](screenshot.png)
 
 In case of any issue or problem, let us know in the Issues section!
