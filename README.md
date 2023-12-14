@@ -1,5 +1,5 @@
 # LLVM Compiler Project 2023
-Hi! This is MAS-Lang! A useless but a tricky language and we have designed a compiler for it in C++ !
+Hi! This is MAS-Lang! A useless but tricky language and we have designed a compiler for it in C++ !
 
 This language supports:
 
@@ -48,7 +48,7 @@ end
 
 loopc a > 3 and b <= 10 or false: begin a = 5;
   a = 5;
-  b = a * 4;
+  b = (a * 4) + 5 * (7 - 2) / 1;
   if (a > 10) and b == 20:
     begin
       b *= 10;
