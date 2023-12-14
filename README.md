@@ -66,7 +66,7 @@ $ cd build
 $ cmake ..
 $ make
 $ cd code
-$ ./MAS-Lang "int a = 0; a += 1;"
+$ ./MAS-Lang "int a;"
 ```
 
 The results would be the IR code like this:
