@@ -278,7 +278,6 @@ namespace
 
             Node.getCondition()->accept(*this);
             Value* Cond = V;
-            Builder.CreateCondBr(Cond, IfCondBB, nullptr);
 
             Builder.SetInsertPoint(IfBodyBB);
 
@@ -310,7 +309,6 @@ namespace
                     Builder.SetInsertPoint(ElifCondBB);
                     Elif->getCondition()->accept(*this);
                     llvm::Value* ElifCondVal = V;
-                    Builder.CreateCondBr(ElifCondVal, ElifBodyBB, nullptr);
 
                     Builder.SetInsertPoint(ElifBodyBB);
                     Elif->accept(*this);
