@@ -39,9 +39,9 @@ public: Check(const llvm::StringRef& Buffer) {    // constructor scans the whole
 	}
 
 public:
-    std::vector<std::string> find_vars(){
+    void find_vars(std::vector<std::string>& variables, std::vector<char*>& pointers_start
+                   , std::vector<char*>& pointers_end){
 
-	std::vector<std::string> variables;
     while (*BufferPtr) {                      // since end of context is 0 -> !0 = true -> end of context
         
         while (*BufferPtr && charinfo::isWhitespace(*BufferPtr)) {      // Skips whitespace like " "
@@ -62,9 +62,13 @@ public:
 
             else if (Context == "result") {
                 variables.push_back("result");
+                pointers_start.push_back((char*) BufferPtr);
+                pointers_end.push_back((char*) end);
             }
             else {
                 variables.push_back((std::string) Context);
+                pointers_start.push_back((char*) BufferPtr);
+                pointers_end.push_back((char*) end);
             }
 
 			BufferPtr = end;
@@ -74,7 +78,7 @@ public:
         ++BufferPtr;
     }
 
-    return variables;
+    return;
 
 	};
 

@@ -7,10 +7,12 @@ class Remove{
 
     Check& checker;
     std::vector<std::string> variables;
+    std::vector<char*> pointers_start;
+    std::vector<char*> pointers_end;
 
-    void remove(){
+    void find_variables(){
 
-        variables = checker.find_vars();
+        checker.find_vars(variables, pointers_start, pointers_end);
 
         std::cout << "Vector elements:";
         for (const auto& element : variables) {
@@ -23,7 +25,7 @@ public:
 	// initializes all members and retrieves the first token
 	Remove(Check& checker) : checker(checker)
 	{
-		remove();
+		find_variables();
 	}
 };
 #endif
