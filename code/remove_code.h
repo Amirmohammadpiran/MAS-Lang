@@ -7,29 +7,28 @@ class Remove{
 
     Check& checker;
     std::vector<std::string> variables;
-    std::vector<char*> pointers_start;
-    std::vector<char*> pointers_end;
+    std::vector<char*> variable_end_ptr;
+    std::vector<std::vector<char*>> line_start;
+    std::vector<std::string> live_variables;
+
 
     void find_variables(){
 
-        checker.find_vars(variables, pointers_start, pointers_end);
-
-        std::vector<std::string> variables_no_duplicates;
-        for (const auto& element1 : variables) {
-            bool duplicate = false;
-            for (const auto& element2 : variables_no_duplicates) {
-                if(element1 == element2){
-                    duplicate = true;
-                }
-            if(!duplicate){
-                variables_no_duplicates.push_back(element1);
-            }
-            }
-        }
+        checker.find_vars(variables, variable_end_ptr);
+        checker.find_lines(variables, line_start);
 
         std::cout << "Vector elements:";
         for (const auto& element : variables) {
             std::cout << " " << element;
+        }
+        std::cout << std::endl;
+
+        std::cout << "Vector lines:\n";
+        for (const auto& row : line_start) {
+            for (const auto& element : row) {
+                std::cout << element << "\n";
+            }
+            std::cout << "------------------------------\n";
         }
         std::cout << std::endl;
     }

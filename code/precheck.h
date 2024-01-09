@@ -20,6 +20,10 @@ namespace charinfo {
 			(c >= 'A' && c <= 'Z');
 	}
 
+    LLVM_READNONE inline bool isSemiColon(char c) {
+		return c == ';';
+	}
+
 }
 
 class Check{
@@ -39,24 +43,26 @@ public: Check(const llvm::StringRef& Buffer) {    // constructor scans the whole
 	}
 
 public:
-    void find_vars(std::vector<std::string>& variables, std::vector<char*>& pointers_start
-                   , std::vector<char*>& pointers_end){
+    void find_vars(std::vector<std::string>& variables,
+                   std::vector<char*>& variable_end_ptr){
 
-    while (*BufferPtr) {                      // since end of context is 0 -> !0 = true -> end of context
+    const char* pointer = BufferPtr;
+
+    while (*pointer) {                      // since end of context is 0 -> !0 = true -> end of context
         
-        while (*BufferPtr && charinfo::isWhitespace(*BufferPtr)) {      // Skips whitespace like " "
-            ++BufferPtr;
+        while (*pointer && charinfo::isWhitespace(*pointer)) {      // Skips whitespace like " "
+            ++pointer;
         }
 
-        if (charinfo::isLetter(*BufferPtr)) {   // looking for keywords or identifiers like "int", a123 , ...
+        if (charinfo::isLetter(*pointer)) {   // looking for keywords or identifiers like "int", a123 , ...
 
-            const char* end = BufferPtr + 1;
+            const char* end = pointer + 1;
 
             while (charinfo::isLetter(*end) || charinfo::isDigit(*end))
                 ++end;                          // until reaches the end of lexeme
             // example: ".int " -> "i.nt " -> "in.t " -> "int. "
 
-            llvm::StringRef Context(BufferPtr, end - BufferPtr);  // start of lexeme, length of lexeme
+            llvm::StringRef Context(pointer, end - pointer);  // start of lexeme, length of lexeme
 
             if (Context == "int") {}
 
@@ -72,8 +78,7 @@ public:
                 }
                 if(!duplicate){
                     variables.push_back("result");
-                    pointers_start.push_back((char*) BufferPtr);
-                    pointers_end.push_back((char*) end);
+                    variable_end_ptr.push_back((char*) end);
                 }
                 
             }
@@ -88,21 +93,61 @@ public:
                 }
                 if(!duplicate){
                     variables.push_back((std::string) Context);
-                    pointers_start.push_back((char*) BufferPtr);
-                    pointers_end.push_back((char*) end);
+                    variable_end_ptr.push_back((char*) end);
                 }
             }
 
-			BufferPtr = end;
+			pointer = end;
 
         }
 
-        ++BufferPtr;
+        ++pointer;
     }
 
     return;
 
 	};
+
+    void find_lines(std::vector<std::string> variables, std::vector<std::vector<char*>>& lines){
+
+        for (const auto& variable : variables) {
+
+            const char* pointer = BufferPtr;
+            const char* line_start = BufferPtr;
+            std::vector<char*> single_lines;
+
+            while (*pointer) {                      // since end of context is 0 -> !0 = true -> end of context
+        
+                while (*pointer && charinfo::isWhitespace(*pointer)) {      // Skips whitespace like " "
+                    ++pointer;
+                }
+
+                if (charinfo::isLetter(*pointer)) {   // looking for keywords or identifiers like "int", a123 , ...
+
+                    const char* end = pointer + 1;
+
+                    while (charinfo::isLetter(*end) || charinfo::isDigit(*end))
+                        ++end;                          // until reaches the end of lexeme
+
+                    llvm::StringRef Context(pointer, end - pointer);  // start of lexeme, length of lexeme
+
+                    if ((std::string) Context == variable) {
+                        single_lines.push_back((char*) line_start);
+                    }
+
+                    pointer = end;
+
+                }
+                if(charinfo::isSemiColon(*pointer)){
+                    line_start = pointer+1;
+                }
+
+                ++pointer;
+            }
+            
+            lines.push_back(single_lines);
+        }
+    }
 
 };
 #endif
