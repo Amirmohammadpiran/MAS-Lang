@@ -61,14 +61,36 @@ public:
             if (Context == "int") {}
 
             else if (Context == "result") {
-                variables.push_back("result");
-                pointers_start.push_back((char*) BufferPtr);
-                pointers_end.push_back((char*) end);
+
+                bool duplicate = false;
+
+                for (const auto& element1 : variables) {
+
+                    if(element1 == Context){
+                        duplicate = true;
+                    }
+                }
+                if(!duplicate){
+                    variables.push_back("result");
+                    pointers_start.push_back((char*) BufferPtr);
+                    pointers_end.push_back((char*) end);
+                }
+                
             }
             else {
-                variables.push_back((std::string) Context);
-                pointers_start.push_back((char*) BufferPtr);
-                pointers_end.push_back((char*) end);
+                bool duplicate = false;
+
+                for (const auto& element1 : variables) {
+
+                    if(element1 == Context){
+                        duplicate = true;
+                    }
+                }
+                if(!duplicate){
+                    variables.push_back((std::string) Context);
+                    pointers_start.push_back((char*) BufferPtr);
+                    pointers_end.push_back((char*) end);
+                }
             }
 
 			BufferPtr = end;

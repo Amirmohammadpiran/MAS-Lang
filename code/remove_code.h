@@ -14,6 +14,19 @@ class Remove{
 
         checker.find_vars(variables, pointers_start, pointers_end);
 
+        std::vector<std::string> variables_no_duplicates;
+        for (const auto& element1 : variables) {
+            bool duplicate = false;
+            for (const auto& element2 : variables_no_duplicates) {
+                if(element1 == element2){
+                    duplicate = true;
+                }
+            if(!duplicate){
+                variables_no_duplicates.push_back(element1);
+            }
+            }
+        }
+
         std::cout << "Vector elements:";
         for (const auto& element : variables) {
             std::cout << " " << element;
