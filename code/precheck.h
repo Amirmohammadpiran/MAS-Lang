@@ -24,6 +24,10 @@ namespace charinfo {
 		return c == ';';
 	}
 
+    LLVM_READNONE inline bool isEqual(char c) {
+		return c == '=';
+	}
+
 }
 
 class Check{
@@ -146,6 +150,62 @@ public:
             }
             
             lines.push_back(single_lines);
+        }
+    }
+
+    void set_live(std::vector<std::string> variables, std::vector<std::vector<char*>> lines,
+                  std::vector<std::string>& live_variables){
+
+        std::vector<char*> live_lines = lines[0];       // first variable (result) is always live
+
+        for (const auto& line : live_lines) {
+
+            bool has_live = false;
+            const char* Buffer = line;
+
+            while (!charinfo::isSemiColon(*Buffer)) {
+
+                if(charinfo::isEqual(*Buffer)){
+
+                    while (!charinfo::isLetter(*Buffer) && !charinfo::isSemiColon(*Buffer)) {      // Skips whitespace like " "
+                        ++Buffer;
+                    }
+
+                    if (charinfo::isLetter(*Buffer)) {   // looking for keywords or identifiers like "int", a123 , ...
+
+                        const char* end = Buffer + 1;
+
+                        while (charinfo::isLetter(*end) || charinfo::isDigit(*end))
+                            ++end;                          // until reaches the end of lexeme
+
+                        llvm::StringRef Context(Buffer, end - Buffer);  // start of lexeme, length of lexeme
+
+                        if (Context != "int" && Context != "result") {
+
+                            bool duplicate = false;
+
+                            for (const auto& element1 : live_variables) {
+
+                                if(element1 == Context){
+                                    duplicate = true;
+                                }
+                            }
+                            if(!duplicate){
+                                live_variables.push_back((std::string) Context);
+                                has_live = true;
+                            }
+                        }
+
+                        Buffer = end;
+
+                    }
+
+                }
+
+                ++Buffer;
+            }
+
+            
         }
     }
 
