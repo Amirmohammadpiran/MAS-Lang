@@ -136,7 +136,18 @@ public:
                     llvm::StringRef Context(pointer, end - pointer);  // start of lexeme, length of lexeme
 
                     if ((std::string) Context == variable) {
-                        single_lines.push_back((char*) line_start);
+
+                        bool duplicate = false;
+
+                        for (const auto& element1 : single_lines) {
+
+                            if(element1 == line_start){
+                                duplicate = true;
+                            }
+                        }
+                        if(!duplicate){
+                            single_lines.push_back((char*) line_start);
+                        }
                     }
 
                     pointer = end;
@@ -158,9 +169,13 @@ public:
 
         std::vector<char*> live_lines = lines[0];       // first variable (result) is always live
 
+        std::reverse(live_lines.begin(), live_lines.end());
+
         for (const auto& line : live_lines) {
 
-            bool has_live = false;
+            if(!is_left_side(line))
+                continue;
+
             const char* Buffer = line;
 
             while (!charinfo::isSemiColon(*Buffer)) {
@@ -171,41 +186,92 @@ public:
                         ++Buffer;
                     }
 
-                    if (charinfo::isLetter(*Buffer)) {   // looking for keywords or identifiers like "int", a123 , ...
-
-                        const char* end = Buffer + 1;
-
-                        while (charinfo::isLetter(*end) || charinfo::isDigit(*end))
-                            ++end;                          // until reaches the end of lexeme
-
-                        llvm::StringRef Context(Buffer, end - Buffer);  // start of lexeme, length of lexeme
-
-                        if (Context != "int" && Context != "result") {
-
-                            bool duplicate = false;
-
-                            for (const auto& element1 : live_variables) {
-
-                                if(element1 == Context){
-                                    duplicate = true;
-                                }
-                            }
-                            if(!duplicate){
-                                live_variables.push_back((std::string) Context);
-                                has_live = true;
-                            }
-                        }
-
-                        Buffer = end;
-
-                    }
-
+                    find_right_side_vars(Buffer, live_variables);
                 }
 
                 ++Buffer;
             }
 
+            if(live_variables.size() > 0)
+                break;
+        }
+
+        ///// Extra 
+    }
+
+    bool is_left_side(const char* line){
             
+        const char* Buffer = line;
+
+        while (!charinfo::isEqual(*Buffer)) {
+
+            if(charinfo::isSemiColon(*Buffer)){
+                return false;
+            }
+
+
+            while (!charinfo::isLetter(*Buffer) && !charinfo::isSemiColon(*Buffer)) {      // Skips whitespace like " "
+                ++Buffer;
+            }
+
+            if (charinfo::isLetter(*Buffer)) {   // looking for keywords or identifiers like "int", a123 , ...
+
+                const char* end = Buffer + 1;
+
+                while (charinfo::isLetter(*end) || charinfo::isDigit(*end))
+                    ++end;                          // until reaches the end of lexeme
+
+                llvm::StringRef Context(Buffer, end - Buffer);  // start of lexeme, length of lexeme
+
+                if (Context == "result") {
+                    return true;
+                }
+
+                Buffer = end;
+            }
+
+            ++Buffer;
+        }
+
+        return false;
+    }
+
+
+    void find_right_side_vars(const char* new_buffer, std::vector<std::string>& live_variables){
+
+        const char* Buffer = new_buffer;
+
+        while(!charinfo::isSemiColon(*Buffer)){
+
+            if (charinfo::isLetter(*Buffer)) {   // looking for keywords or identifiers like "int", a123 , ...
+
+                const char* end = Buffer + 1;
+
+                while (charinfo::isLetter(*end) || charinfo::isDigit(*end))
+                    ++end;                          // until reaches the end of lexeme
+
+                llvm::StringRef Context(Buffer, end - Buffer);  // start of lexeme, length of lexeme
+
+                if (Context != "int" && Context != "result") {
+
+                    bool duplicate = false;
+
+                    for (const auto& element1 : live_variables) {
+
+                        if(element1 == Context){
+                            duplicate = true;
+                        }
+                    }
+                    if(!duplicate){
+                        live_variables.push_back((std::string) Context);
+                    }
+                }
+
+                Buffer = end;
+            }
+            else{
+                ++Buffer;
+            }
         }
     }
 
