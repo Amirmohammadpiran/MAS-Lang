@@ -186,7 +186,9 @@ public:
                         ++Buffer;
                     }
 
-                    find_right_side_vars(Buffer, live_variables);
+                    std::string var = "result";
+                    find_right_side_vars(Buffer, live_variables, var);
+                    break;
                 }
 
                 ++Buffer;
@@ -196,7 +198,7 @@ public:
                 break;
         }
 
-        ///// Extra 
+        find_extra_live_variables(variables, lines, live_variables);
     }
 
     bool is_left_side(const char* line){
@@ -237,7 +239,8 @@ public:
     }
 
 
-    void find_right_side_vars(const char* new_buffer, std::vector<std::string>& live_variables){
+    void find_right_side_vars(const char* new_buffer, std::vector<std::string>& live_variables,
+                              std::string var){
 
         const char* Buffer = new_buffer;
 
@@ -252,7 +255,7 @@ public:
 
                 llvm::StringRef Context(Buffer, end - Buffer);  // start of lexeme, length of lexeme
 
-                if (Context != "int" && Context != "result") {
+                if (Context != "int" && Context != var) {
 
                     bool duplicate = false;
 
@@ -273,6 +276,57 @@ public:
                 ++Buffer;
             }
         }
+    }
+
+    void find_extra_live_variables(std::vector<std::string> variables,
+                                   std::vector<std::vector<char*>> lines,
+                                   std::vector<std::string>& live_variables){
+
+
+        for (size_t i=0; i<live_variables.size(); i++) {
+
+            std::vector<char*> live_lines;
+
+            for (size_t j=0; j<variables.size(); j++){
+
+                if(variables[j] == live_variables[i]){
+                    live_lines = lines[j];
+
+                }
+            }
+
+            std::reverse(live_lines.begin(), live_lines.end());
+            std::vector<std::string> temp_live_variables = live_variables;
+
+            for (const auto& line : live_lines) {
+
+                if(!is_left_side(line))
+                    continue;
+
+                const char* Buffer = line;
+
+                while (!charinfo::isSemiColon(*Buffer)) {
+
+                    if(charinfo::isEqual(*Buffer)){
+
+                        while (!charinfo::isLetter(*Buffer) && !charinfo::isSemiColon(*Buffer)) {      // Skips whitespace like " "
+                            ++Buffer;
+                        }
+
+                        find_right_side_vars(Buffer, live_variables, live_variables[i]);
+                        break;
+                    }
+
+                    ++Buffer;
+                }
+
+                if(live_variables.size() > temp_live_variables.size()){
+                    temp_live_variables = live_variables;
+                    break;
+                }
+            }
+        }
+    
     }
 
 };
