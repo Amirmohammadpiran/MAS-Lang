@@ -193,7 +193,7 @@ public:
 
                     if(live_variables.size() == 0)
                         return;
-                    
+
                     last_result_line = live_lines[i];
                     break;
                 }
@@ -381,6 +381,7 @@ public:
                     continue;
 
                 const char* Buffer = line;
+                bool found_extra = false;
 
                 while (!charinfo::isSemiColon(*Buffer)) {
 
@@ -392,8 +393,12 @@ public:
 
                         if(found_result_after(Buffer, last_result_line)){
                         
+                            size_t length = live_variables.size();
                             find_right_side_vars(Buffer, live_variables, live_variables[i]);
-                            final_lines.push_back(line);
+                            if(live_variables.size() > length){
+                                final_lines.push_back(line);
+                                found_extra = true;
+                            }
                         }
                         break;
                     }
@@ -401,7 +406,7 @@ public:
                     ++Buffer;
                 }
 
-                if(live_variables.size() > temp_live_variables.size()){
+                if(live_variables.size() > temp_live_variables.size() || found_extra){
                     temp_live_variables = live_variables;
                     break;
                 }
