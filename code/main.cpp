@@ -60,7 +60,6 @@ int main(int argc, const char** argv)
 
 	Check checker(contentRef);
 	Remove remove_code(checker);
-	
 
 	// Lexer lexer(contentRef);
 

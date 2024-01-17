@@ -165,7 +165,8 @@ public:
     }
 
     void set_live(std::vector<std::string> variables, std::vector<std::vector<char*>> lines,
-                  std::vector<std::string>& live_variables){
+                  std::vector<std::string>& live_variables, std::vector<char*>& final_lines,
+                  char*& last_result_line){
 
         std::vector<char*> live_lines = lines[0];       // first variable (result) is always live
 
@@ -188,6 +189,8 @@ public:
 
                     std::string var = "result";
                     find_right_side_vars(Buffer, live_variables, var);
+                    final_lines.push_back(line);
+                    last_result_line = line;
                     break;
                 }
 
@@ -198,7 +201,7 @@ public:
                 break;
         }
 
-        find_extra_live_variables(variables, lines, live_variables);
+        find_extra_live_variables(variables, lines, live_variables, final_lines, last_result_line);
     }
 
     bool is_left_side(const char* line){
@@ -278,9 +281,81 @@ public:
         }
     }
 
+    bool found_result_after(const char* buffer, char* last_result_line){
+
+        while(*buffer){
+
+            if(buffer == last_result_line){
+                return true;
+            }
+            buffer++;
+        }
+        return false;
+    }
+
+
+    bool is_def_line(char* line, std::vector<std::string> live_variables){
+
+        char* Buffer = line;
+        char* end_sent = Buffer + 1;
+        while(!charinfo::isSemiColon(*end_sent))
+            end_sent++;
+
+        while (Buffer != end_sent) {
+
+            while (charinfo::isWhitespace(*Buffer)) {      // Skips whitespace like " "
+                ++Buffer;
+            }
+
+            if (charinfo::isLetter(*Buffer)) {   // looking for keywords or identifiers like "int", a123 , ...
+
+                char* end = Buffer + 1;
+
+                while (charinfo::isLetter(*end) || charinfo::isDigit(*end))
+                    ++end;                          // until reaches the end of lexeme
+
+                llvm::StringRef Context(Buffer, end - Buffer);  // start of lexeme, length of lexeme
+
+                Buffer = end;
+                if ((std::string) Context == "int") {
+                    
+                    while (charinfo::isWhitespace(*Buffer)) {
+                        ++Buffer;
+                    }
+                    char* end = Buffer + 1;
+                    while (charinfo::isLetter(*end) || charinfo::isDigit(*end))
+                        ++end;
+
+                    llvm::StringRef Context(Buffer, end - Buffer);  // start of lexeme, length of lexeme
+
+                    for(auto const& var : live_variables){
+                        if((std::string) Context == var){
+                            std::cout <<"\n------"<< (std::string)Context << "==" << var << "-----\n";
+
+                            return true;
+                        }
+                    }
+                    return false;
+                }else{
+                    return false;
+                }
+
+                Buffer = end;
+            }
+
+
+            ++Buffer;
+        }
+
+        return false;
+
+    }
+
     void find_extra_live_variables(std::vector<std::string> variables,
                                    std::vector<std::vector<char*>> lines,
-                                   std::vector<std::string>& live_variables){
+                                   std::vector<std::string>& live_variables,
+                                   std::vector<char*>& final_lines,
+                                   char* last_result_line){
 
 
         for (size_t i=0; i<live_variables.size(); i++) {
@@ -313,7 +388,11 @@ public:
                             ++Buffer;
                         }
 
-                        find_right_side_vars(Buffer, live_variables, live_variables[i]);
+                        if(found_result_after(Buffer, last_result_line)){
+                        
+                            find_right_side_vars(Buffer, live_variables, live_variables[i]);
+                            final_lines.push_back(line);
+                        }
                         break;
                     }
 
@@ -327,6 +406,31 @@ public:
             }
         }
     
+    }
+
+    std::vector<char*> sent_tokenize(){
+
+        const char* pointer = BufferPtr;
+        const char* line_start = BufferPtr;
+        std::vector<char*> start_buffers;
+
+
+        while (*pointer) {                      // since end of context is 0 -> !0 = true -> end of context
+    
+            while (*pointer && charinfo::isWhitespace(*pointer)) {      // Skips whitespace like " "
+                ++pointer;
+            }
+
+            if(charinfo::isSemiColon(*pointer)){
+
+                start_buffers.push_back((char*) line_start);
+                line_start = pointer+1;
+            }
+
+            ++pointer;
+        }
+
+        return start_buffers;
     }
 
 };
