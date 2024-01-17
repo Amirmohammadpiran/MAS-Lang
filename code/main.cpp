@@ -60,22 +60,25 @@ int main(int argc, const char** argv)
 
 	Check checker(contentRef);
 	Remove remove_code(checker);
+	std::string code = remove_code.pointer_to_string();
+	std::cout << "\nOptimized code: \n" << code << "\n---------------\n" << std::endl;
+	contentRef = code;
 
-	// Lexer lexer(contentRef);
+	Lexer lexer(contentRef);
 
 
-	// Parser Parser(lexer);
-	// AST* Tree = Parser.parse();
+	Parser Parser(lexer);
+	AST* Tree = Parser.parse();
 
-	// Sema Semantic;
-	// if (Semantic.semantic(Tree))
-	// {
-	// 	llvm::errs() << "Semantic errors occurred...\n";
-	// 	return 1;
-	// }
+	Sema Semantic;
+	if (Semantic.semantic(Tree))
+	{
+		llvm::errs() << "Semantic errors occurred...\n";
+		return 1;
+	}
 	
-	// CodeGen CodeGenerator;
-	// CodeGenerator.compile(Tree);
+	CodeGen CodeGenerator;
+	CodeGenerator.compile(Tree);
 
 
 	return 0;

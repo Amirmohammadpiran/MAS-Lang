@@ -330,8 +330,6 @@ public:
 
                     for(auto const& var : live_variables){
                         if((std::string) Context == var){
-                            std::cout <<"\n------"<< (std::string)Context << "==" << var << "-----\n";
-
                             return true;
                         }
                     }
@@ -407,6 +405,24 @@ public:
         }
     
     }
+
+    std::vector<std::string> finalize_lines(std::vector<char*> final_program){
+
+        std::vector<std::string> lines;
+
+        for(auto const& line : final_program){
+
+            const char* pointer = line;
+            while (!charinfo::isSemiColon(*pointer)) { 
+                ++pointer;
+            }
+            llvm::StringRef Context(line, pointer+1 - line);
+            lines.push_back((std::string) Context);
+        }
+
+        return lines;
+    }
+
 
     std::vector<char*> sent_tokenize(){
 

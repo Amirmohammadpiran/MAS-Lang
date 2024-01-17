@@ -12,7 +12,7 @@ class Remove{
     std::vector<std::string> live_variables;
     std::vector<char*> live_lines;
     char* last_result_line;
-    std::vector<std::string> final_program;
+    std::vector<char*> final_program;
 
 
     void find_variables(){
@@ -36,12 +36,22 @@ class Remove{
 
                     if(line == live_line){
                         final_program.push_back(line);
-                        std::cout << line << "  ### \n";
                         break;
                     }
                 }
             }
         }
+    }
+
+public:
+    std::string pointer_to_string(){
+
+        std::string code = "";
+        std::vector<std::string> lines = checker.finalize_lines(final_program);
+        for (std::string line : lines){
+            code += line;
+        }
+        return code;
     }
 
 public:
