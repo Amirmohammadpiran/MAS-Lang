@@ -190,8 +190,10 @@ public:
                     std::string var = "result";
                     find_right_side_vars(Buffer, live_variables, var);
                     final_lines.push_back(live_lines[i]);
+
                     if(live_variables.size() == 0)
                         return;
+                    
                     last_result_line = live_lines[i];
                     break;
                 }

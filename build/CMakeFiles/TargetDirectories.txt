@@ -1,8 +1,0 @@
-/home/amir/Downloads/MAS-Lang-main/build/CMakeFiles/intrinsics_gen.dir
-/home/amir/Downloads/MAS-Lang-main/build/CMakeFiles/omp_gen.dir
-/home/amir/Downloads/MAS-Lang-main/build/CMakeFiles/acc_gen.dir
-/home/amir/Downloads/MAS-Lang-main/build/CMakeFiles/edit_cache.dir
-/home/amir/Downloads/MAS-Lang-main/build/CMakeFiles/rebuild_cache.dir
-/home/amir/Downloads/MAS-Lang-main/build/code/CMakeFiles/MAS-Lang.dir
-/home/amir/Downloads/MAS-Lang-main/build/code/CMakeFiles/edit_cache.dir
-/home/amir/Downloads/MAS-Lang-main/build/code/CMakeFiles/rebuild_cache.dir
