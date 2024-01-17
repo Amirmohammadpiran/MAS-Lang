@@ -172,12 +172,12 @@ public:
 
         std::reverse(live_lines.begin(), live_lines.end());
 
-        for (const auto& line : live_lines) {
+        for (size_t i=0; i<live_lines.size(); i++) {
 
-            if(!is_left_side(line))
+            if(!is_left_side(live_lines[i]))
                 continue;
 
-            const char* Buffer = line;
+            const char* Buffer = live_lines[i];
 
             while (!charinfo::isSemiColon(*Buffer)) {
 
@@ -189,8 +189,10 @@ public:
 
                     std::string var = "result";
                     find_right_side_vars(Buffer, live_variables, var);
-                    final_lines.push_back(line);
-                    last_result_line = line;
+                    final_lines.push_back(live_lines[i]);
+                    if(live_variables.size() == 0)
+                        return;
+                    last_result_line = live_lines[i];
                     break;
                 }
 
