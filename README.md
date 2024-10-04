@@ -4,7 +4,7 @@
 ![cmake](https://img.shields.io/badge/CMake-064F8C?style=for-the-badge&logo=cmake&logoColor=white)
 ![bash](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)
 
-Hi! This is MAS-Lang! A useless but tricky language and we have designed a compiler for it in C++ !
+Hi! This is MAS-Lang! A useless but tricky language and we have designed a compiler for it!
 
 This language supports:
 
